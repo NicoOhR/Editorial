@@ -53,14 +53,17 @@ html {
 }
 
 body {
-    width: 50%;
+    width: 85%;
+    max-width: 960px;
     margin-left: auto;
     margin-right: auto;
     padding-right: 18%;
-    font-family: et-book, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif;
+    font-family: Petrona, Georgia, serif;
+    font-size: 14px;
+    line-height: 32px;
     background-color: #fffff8;
     color: #111;
-    max-width: 1400px;
+    max-width: 960px;
     counter-reset: sidenote-counter;
 }
 
@@ -138,8 +141,8 @@ p,
 dl,
 ol,
 ul {
-    font-size: 1.4rem;
-    line-height: 2rem;
+    font-size: 1.1rem;
+    line-height: 1.8rem;
 }
 
 p {
@@ -178,12 +181,12 @@ blockquote {
 }
 
 blockquote p {
-    width: 55%;
+    width: 64%;
     margin-right: 40px;
 }
 
 blockquote footer {
-    width: 55%;
+    width: 64%;
     font-size: 1.1rem;
     text-align: right;
 }
@@ -191,14 +194,14 @@ blockquote footer {
 section > p,
 section > footer,
 section > table {
-    width: 55%;
+    width: 68%;
 }
 
-/* 50 + 5 == 55, to be the same width as paragraph */
+/* 63 + 5 == 68, to be the same width as paragraph */
 section > dl,
 section > ol,
 section > ul {
-    width: 50%;
+    width: 63%;
     -webkit-padding-start: 5%;
 }
 
@@ -251,8 +254,8 @@ img {
 .marginnote {
     float: right;
     clear: right;
-    margin-right: -60%;
-    width: 50%;
+    margin-right: -40%;
+    width: 37%;
     margin-top: 0.3rem;
     margin-bottom: 0;
     font-size: 1.1rem;
@@ -274,14 +277,14 @@ img {
 
 .sidenote-number:after {
     content: counter(sidenote-counter);
-    font-size: 1rem;
+    font-size: 0.7rem;
     top: -0.5rem;
     left: 0.1rem;
 }
 
 .sidenote:before {
     content: counter(sidenote-counter) " ";
-    font-size: 1rem;
+    font-size: 0.7rem;
     top: -0.5rem;
 }
 
@@ -561,6 +564,7 @@ pre,
   font-family: 'Newsreader', serif;
   font-style: italic;
   font-size: 5rem;               /* text-8xl */
+  line-height: 1;
   color: #ffffff;
   text-decoration: none;
   transition: color 300ms ease-in-out; /* duration-300 */
