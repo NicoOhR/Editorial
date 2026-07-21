@@ -1,0 +1,319 @@
+<!-- post.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+  article p {
+    text-align: justify;
+  }
+  </style>
+  <script
+    type="module"
+    blocking="render"
+    src="https://cdn.jsdelivr.net/npm/justif@0.4.2/dist/auto.js"
+  ></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Programmer Polemic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Fira+Code:wght@300..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Wittgenstein:ital,wght@0,400..900;1,400..900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../tufte.css">
+  <link rel="stylesheet" href="../code_highlight.css">
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+</head>
+<body>
+  <style>
+  :not(pre) > code {
+      background: #313244;
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-family: 'Fira Code', monospace;
+      font-variant-ligatures: contextual;
+      font-feature-settings: "calt" 1, "liga" 1;
+      font-size: 0.875em;
+  }
+  .code-block {
+      margin: 1.5em 0;
+      border: 1px solid #45475a;
+      border-radius: 6px;
+      overflow: hidden;
+  }
+  .code-block::before {
+      content: attr(data-lang);
+      display: block;
+      background: #800000;
+      color: #ffffff;
+      font-family: 'Fira Code', monospace;
+      font-variant-ligatures: contextual;
+      font-feature-settings: "calt" 1, "liga" 1;
+      font-size: 0.72em;
+      padding: 0.35em 1em;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+  }
+  .code-block[data-lang="text"]::before,
+  .code-block[data-lang="plaintext"]::before {
+      display: none;
+  }
+  pre.code {
+      font-family: 'Monaspace Argon', monospace;
+      font-weight: 600;
+      font-variant-ligatures: contextual;
+      font-feature-settings: "calt" 1, "liga" 1, "ss01" 1, "ss02" 1, "ss03" 1, "ss04" 1, "ss05" 1, "ss06" 1, "ss07" 1, "ss08" 1, "ss09" 1;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: pre;
+      padding: 0.75em 1em;
+      margin: 0;
+      border-radius: 0;
+      -webkit-overflow-scrolling: touch;
+  }
+  .post-content table {
+      border-collapse: collapse;
+      width: 55%;
+      margin: 1.5em auto;
+      font-size: 0.9em;
+  }
+  .post-content thead {
+      background: #313244;
+      border-bottom: 2px solid #800000;
+  }
+  .post-content th,
+  .post-content td {
+      padding: 0.5em 0.85em;
+      text-align: left;
+      border: 1px solid #45475a;
+  }
+  .post-content th {
+      font-weight: 600;
+      letter-spacing: 0.03em;
+  }
+  .post-content tbody tr:nth-child(even) {
+      background: #1e1e2e;
+  }
+  .post-content tbody tr:hover {
+      background: #313244;
+  }
+  .divider-link {
+      position: relative;
+      display: inline-block;
+  }
+  .divider-link::after {
+      content: "";
+      position: absolute;
+      bottom: -0.35rem;
+      left: -20%;
+      width: 140%;
+      height: 1px;
+      background-color: #ffffff;
+      transition: background-color 300ms ease-in-out;
+  }
+  .divider-link:hover::after {
+      background-color: #800000;
+  }
+  </style>
+  <nav class="nav editorial-nav">
+    <div class="nav-center">
+      <a href="../" class="nav-title divider-link">Sicarii</a>
+    </div>
+  </nav>
+
+  <div class="editorial">
+    <main class="post-container">
+      <div class="post-header">
+        <h1 class="post-title">The Programmer Polemic</h1>
+        <div class="post-meta">
+          <div class="author">Nico OR</div>
+          <div class="date">2026-06-18</div>
+        </div>
+      </div>
+
+      <article class="post-content">
+        <html><head></head><body><nav class="toc"><ul>
+  <li class="toc-h1"><a href="#introduction">Introduction</a></li>
+  <li class="toc-h2"><a href="#history">History</a></li>
+  <li class="toc-h2"><a href="#motivation">Motivation</a></li>
+  <li class="toc-h2"><a href="#a-brief-note">A Brief Note</a></li>
+  <li class="toc-h1"><a href="#the-subsidized-crib-of-tech">The Subsidized Crib of Tech</a></li>
+  <li class="toc-h2"><a href="#considered-harmful">Considered Harmful</a></li>
+  <li class="toc-h2"><a href="#rfcs">RFCs</a></li>
+  <li class="toc-h2"><a href="#worse-is-better-is-worse-is-worse-is-better">Worse is better is worse is worse is better …</a></li>
+  <li class="toc-h1"><a href="#romulus-and-remus">Romulus and Remus</a></li>
+  <li class="toc-h1"><a href="#oop-and-other-poorly-defined-concepts">OOP and Other Poorly Defined Concepts</a></li>
+  <li class="toc-h1"><a href="#ai-is-dead-long-live-ai">AI is Dead, Long Live AI</a></li>
+  <li class="toc-h1"><a href="#briefly-mathematics">Briefly, Mathematics</a></li>
+  <li class="toc-h1"><a href="#conclusion">Conclusion</a></li>
+</ul></nav>
+<h1 id="introduction">Introduction</h1>
+<h2 id="history">History</h2>
+<p>A polemic <label for="cmake" id="1" class="margin-toggle sidenote-number">
+</label><input type="checkbox" id="cmake" class="margin-toggle">
+<span class="sidenote">Pronounced peh-lem-ick, not pole-mick, which should hopefully save
+you a similar sort of embarrassment that I had suffered </span> is an argument which
+as directly as possible, makes claims to support ones own position and undermine
+an opposing one. The word describes more a stylistic decision than a specific
+form of rhetoric. It’s aggressive and, as per the etymology, warlike. The style
+is old being pioneered by the Greeks and vaguely adopted by prophetic Hebrews.
+Though not the point at hand, I would also argue it should be counted amongst
+the few cultural results of the Roman empire, the other two being satires and
+the aesthetic of western empire, considering the impact of The Philippic.</p>
+<p>The polemic has survived and in fact been lionized in modern times. I would go
+as far as to say that a great deal of modern published editorials could be
+argued to be polemical.</p>
+<h2 id="motivation">Motivation</h2>
+<p>As a personal motivation, I spend a great deal of time on the internet and a
+great deal of that time is spent doing something approximating software
+engineering. I think it is important to understand the culture one is immersed
+in, and if that culture presents itself primarily as blogs, email chains, and
+comments on hacker news, then we should engage it as such. <label for="cmake" id="2" class="margin-toggle sidenote-number">
+</label><input type="checkbox" id="cmake" class="margin-toggle">
+<span class="sidenote"> Frankly, I’m just
+interested in people, and I would like others to at least understand a genre of
+rhetoric I spend a lot of time engaging with. In this way, this is apologia of
+the programmer polemical </span></p>
+<p>As for why <em>you</em> should care: for better or for worse, the professional culture
+of the yuppie silicon valley tech-penuer has become the culture of one of the
+largest financial sectors in the world.</p>
+<blockquote>
+<p>insert here some statistics about the size of the tech industry</p>
+</blockquote>
+<p>The behavior and output of this culture has massive economic effect. Though we
+should hope for our engineering decisions to have some objective through line,
+we should not discount the effect of rhetoric on our decisions: after all, how
+often do you consult reddit prior to choosing a library?</p>
+<p>Take also the fact that the tech industry, as it were, is somewhat defined
+<em>culturally</em>; Amazon brokers physical goods, Tesla makes cars, Google is an
+advertising company, Netflix is a <em>media production company</em>. What unifies these
+companies is sometimes geographic proximity, in itself an element of culture to
+be sure, but in reality “tech company” is a shorthand for a loose collection of
+professional cultural practices.</p>
+<p>I present a chronology of one aspect of this culture, the programmer polemical.
+I will provide a few examples of the genre, attempt to contextualize and provide
+commentary for those polemics, and hopefully explore an under-recognized
+subculture.</p>
+<h2 id="a-brief-note">A Brief Note</h2>
+<p>While I will avoid strictly defining the programmer polemic, since too stringent
+a criteria will obscure the actual value of the following pieces too much I
+think, we will require that each piece <em>must</em> be directly relating to software
+and hardware engineering and the practice thereof. The article needs to be about
+<em>making</em> the technology, the details of the implementation, and more to the
+point how technology <em>should</em> be made, and not about the <em>technology itself</em> or
+how it should be used. These are articles written almost exclusively <em>for other
+programmers</em>.<label for="cmake" id="3" class="margin-toggle sidenote-number">
+</label><input type="checkbox" id="cmake" class="margin-toggle">
+<span class="sidenote">I will be prefixing various nouns as <em>programmer</em>-X when I am
+trying to convy this character, a la, <em>gentleman-historian</em></span></p>
+<p>This immediately eliminates a lot of the rationalist milieu, the LessWrong, MIRI
+crowd, who frankly deserve their own investigation. They’re a fascinating group
+of people, although maybe not in the way that they thing they are fascinating,
+but are ultimately out of scope for this conversation. As such, we will not be
+discussing anything longtermism, growth-hacking related.</p>
+<p>While we’re in the brief note section, I’ll also make a promise to try to make
+the technical concepts within grasp for a non programmer audience. As a result,
+if you know a thing or two about programming, you might find some long
+paragraphs very boring.</p>
+<blockquote>
+<p>this is a different section entirely</p>
+</blockquote>
+<p>Software engineering sometimes attracts a particular personality; as a software
+engineer you have been granted a small fiefdom of bits on which any arbitrary
+rules can be executed. Other engineering professions, almost as a rule, have to
+contend with physical realities and limitations, in this sense, the software
+engineer has been granted a domain with more degrees of freedom.</p>
+<h1 id="the-subsidized-crib-of-tech">The Subsidized Crib of Tech</h1>
+<p>Bridges preced the Euler-Bernoulli beam theory by give or take six thousand
+years. It took an additional 150 years after their discovery before the theory,
+and the results of mathematical analysis writ large, were incorporated into the
+discipline of engineering. More traditional engineering discplines than software
+engineering often have a culture which preceds their modern tools.</p>
+<p>Software engineering, save for the last decade or so, has owed signficant
+portions of both it’s tools and it’s culture to the academic substrate it
+emerged from. Research at various public universities such as [list of unis] and
+research institutions recieving public funds such as [Bell etc] created the
+foundation of the modern tech sector.</p>
+<blockquote>
+<p>History of modern computing appended to last paragraph</p>
+</blockquote>
+<p>The most idealistic version of the espirt de corp of publicaly funded research
+institutions is collaborative; think of how, for example, DARPA net’s primary
+use was email, rather than resource pooling as it was intended for. Research
+happend with an open door because, after all, it was the public which was
+funding it. Research funded in this manner is subject to rhetoric and internal
+politics in a way that private engineering never is. That semi-political culture
+was inhereted by early software engineers.</p>
+<h2 id="considered-harmful">Considered Harmful</h2>
+<p>I choose to credit Dijkstra for at least popularizing public debate as a medium
+of technical discussion, if he wasn’t the first he surely was the best of his
+time. Published in the March 1968 of edition of Communications of the ACM,
+“Go-To Statement Considered Harmful” is a outright decry of the use of go-to
+statements.</p>
+<p>A go-to statement, at least the version he discusses, is an instruction which
+takes a number <span class="math math-inline">n</span> and executes the program from line <span class="math math-inline">n</span>.</p>
+<p>The argument progresses as follows:</p>
+<ul>
+<li>Assertion: Humans do better working with static relations than dynamic
+processes</li>
+<li>Given a program, consider how we track <em>where</em> the program is, lets call the
+data that allows us to place where we are in a program <em>coordinates</em>.</li>
+<li>Certain programming constructs, like loops or conditionals, require us to
+track our coordinates both dynamicly and statically. This is because we can
+only interpret a variable with respect to its progress in the program</li>
+<li>go-to statements <em>make it difficult to ascertain where in the program a piece
+of code is executed</em>, that is, go-to statements obscure the coordinates we
+need to reason about a program</li>
+<li>go-to make the program execution much more dynamic and difficult to parse, as
+asserted, we as humans should avoid relying on go-to to structure our
+programs.</li>
+</ul>
+<p>The specific go-to he’s talking about is ALGOL 60’s, which (in)famously could
+jump anywhere else in the code. The modern version of go-to is typically the
+what the C programming language came up with, where you must specify a jump
+location with a label, a convention that began in no small part due to this
+article. Overtime, different constructs such as break, continue, and even
+<em>return</em> were created as essentially limited forms of the go-to.</p>
+<p>How do we</p>
+<h2 id="rfcs">RFCs</h2>
+<h2 id="worse-is-better-is-worse-is-worse-is-better">Worse is better is worse is worse is better …</h2>
+<h1 id="romulus-and-remus">Romulus and Remus</h1>
+<h1 id="oop-and-other-poorly-defined-concepts">OOP and Other Poorly Defined Concepts</h1>
+<h1 id="ai-is-dead-long-live-ai">AI is Dead, Long Live AI</h1>
+<h1 id="briefly-mathematics">Briefly, Mathematics</h1>
+<h1 id="conclusion">Conclusion</h1>
+</body></html>
+      </article>
+    </main>
+  </div>
+  <script>
+    // pulldown-cmark emits <span class="math math-inline"> and
+    // <span class="math math-display"> with raw LaTeX but no delimiters.
+    // Inject \(...\) / \[...\] before MathJax scans the document.
+    window.MathJax = {
+      loader: {load: ['[tex]/ams']},
+      tex: {
+        packages: {'[+]':['ams']},
+        inlineMath: [ ['\\(', '\\)'] ],
+        displayMath: [ ['\\[', '\\]'] ],
+      },
+      startup: {
+        ready() {
+          document.querySelectorAll('span.math.math-inline').forEach(el => {
+            el.textContent = '\\(' + el.textContent + '\\)';
+          });
+          document.querySelectorAll('span.math.math-display').forEach(el => {
+            el.textContent = '\\[' + el.textContent + '\\]';
+          });
+          MathJax.startup.defaultReady();
+        }
+      }
+    };
+  </script>
+<script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+
+</body>
+</html>

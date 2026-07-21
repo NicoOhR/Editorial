@@ -175,6 +175,16 @@ div.epigraph > blockquote > footer > cite {
 
 blockquote {
     font-size: 1.4rem;
+    border-left: 3px solid #ccc;
+    padding-left: 1.2em;
+    margin-left: 0;
+    font-style: italic;
+}
+
+@media (prefers-color-scheme: dark) {
+    blockquote {
+        border-left-color: #555;
+    }
 }
 
 blockquote p {
@@ -185,7 +195,27 @@ blockquote p {
 blockquote footer {
     width: 55%;
     font-size: 1.1rem;
+    font-style: normal;
     text-align: right;
+    color: #555;
+}
+
+blockquote footer::before {
+    content: "\2014\00a0";
+}
+
+@media (prefers-color-scheme: dark) {
+    blockquote footer {
+        color: #aaa;
+    }
+}
+
+blockquote cite {
+    font-style: normal;
+}
+
+blockquote footer cite {
+    font-style: italic;
 }
 
 section > p,
@@ -311,7 +341,7 @@ code, pre > code {
     font-family: 'Monaspace Argon', Consolas, "Liberation Mono", Menlo, Courier, monospace;
     font-weight: 600;
     font-variant-ligatures: contextual;
-    font-feature-settings: "calt" 1, "liga" 1;
+    font-feature-settings: "calt" 1, "liga" 1, "ss01" 1, "ss02" 1, "ss03" 1, "ss04" 1, "ss05" 1, "ss06" 1, "ss07" 1, "ss08" 1, "ss09" 1;
     font-size: 1.0rem;
     line-height: 1.42;
     -webkit-text-size-adjust: 100%; /* Prevent adjustments of font size after orientation changes in iOS. See https://github.com/edwardtufte/tufte-css/issues/81#issuecomment-261953409 */
@@ -333,7 +363,7 @@ h3 > code {
 }
 
 pre > code {
-    font-size: 0.9rem;
+    font-size: 1.05rem;
     width: 52.5%;
     margin-left: 2.5%;
     overflow-x: auto;
@@ -417,8 +447,9 @@ label.margin-toggle:not(.sidenote-number) {
     }
 
     blockquote {
-        margin-left: 1.5em;
+        margin-left: 0;
         margin-right: 0em;
+        padding-left: 1em;
     }
 
     blockquote p,
