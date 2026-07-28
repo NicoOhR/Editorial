@@ -52,18 +52,36 @@ html {
     font-size: 15px;
 }
 
+/* Article type is set in rem throughout, so the whole page scales from this one
+   value and the proportions hold. Mobile stays at 15px — the layout is tuned
+   there — while desktop is a flat 19px, putting body copy at 20.9px.
+   Deliberately NOT viewport-scaled: a vw-based root made the type shrink on
+   narrower windows, so the same page read a size smaller on a laptop than on a
+   monitor. The measure is what should respond to width, not the type size. */
+@media (min-width: 761px) {
+    html {
+        font-size: 19px;
+    }
+}
+
 body {
     width: 85%;
-    max-width: 960px;
+    /* ~63 characters at the current type size — the measure was 960px, which
+       ran to ~88 and read long. Sidenotes hang 44% of the column to the right,
+       so on screens too narrow to seat both, the measure yields rather than
+       pushing the notes off the edge into a horizontal scrollbar. The 61vw
+       ceiling is 0.59V/(0.5 + 0.44), i.e. the widest column whose note still
+       lands inside the viewport; it needs revisiting if the overhang changes. */
+    max-width: min(660px, 61vw);
     margin-left: auto;
     margin-right: auto;
     padding-right: 18%;
-    font-family: Petrona, Georgia, serif;
-    font-size: 14px;
+    font-family: Alegreya, Petrona, Georgia, serif;
+    font-weight: 440;      /* Alegreya is variable; 440 is a touch above regular */
+    font-size: 0.95rem;    /* was a fixed 14px, which wouldn't scale with the root */
     line-height: 32px;
     background-color: #fffff8;
     color: #111;
-    max-width: 960px;
     counter-reset: sidenote-counter;
 }
 
@@ -129,7 +147,9 @@ p.subtitle {
 }
 
 article {
-    padding: 5rem 0rem;
+    /* Bottom trimmed from 5rem: it used to be the page's trailing whitespace,
+       but the dinkus now closes the article and was being pushed far adrift. */
+    padding: 5rem 0rem 1rem;
 }
 
 section {
@@ -142,7 +162,7 @@ dl,
 ol,
 ul {
     font-size: 1.1rem;
-    line-height: 1.8rem;
+    line-height: 1.45;     /* unitless so it tracks the type, not the root */
 }
 
 p {
@@ -150,6 +170,21 @@ p {
     margin-bottom: 1.4rem;
     padding-right: 0;
     vertical-align: baseline;
+}
+
+/* Drop cap on the article's opening paragraph. The .dropcap class is applied at
+   build time (see render.rs) rather than matched with :first-of-type, because
+   the same paragraph has to be named in the justif skip selector — one source
+   of truth keeps the two from drifting apart.
+   Sized in em so it tracks the body type at every breakpoint. */
+.post-content > p.dropcap::first-letter {
+    float: left;
+    color: #800000;
+    font-size: 4.6em;
+    line-height: 0.76;
+    font-weight: 700;
+    padding-right: 0.07em;
+    padding-top: 0.03em;
 }
 
 /* Chapter Epigraphs */
@@ -284,12 +319,16 @@ img {
 .marginnote {
     float: right;
     clear: right;
-    margin-right: -40%;
+    /* Overhang is 44% against a 37% note, leaving a 7% (~46px) channel between
+       the text column and the note so the two don't crowd each other. */
+    margin-right: -44%;
     width: 37%;
     margin-top: 0.3rem;
     margin-bottom: 0;
-    font-size: 1.1rem;
-    line-height: 1.3;
+    /* Was 1.1rem — identical to body copy, so notes read as main text that had
+       wandered into the margin. 0.87rem ≈ 16.5px against 20.9px body. */
+    font-size: 0.87rem;
+    line-height: 1.4;
     vertical-align: baseline;
     position: relative;
 }
@@ -316,6 +355,10 @@ img {
     content: counter(sidenote-counter) " ";
     font-size: 0.7rem;
     top: -0.5rem;
+    /* Maroon marker at every width, not just mobile. Lighter than the #800000
+       accent so it holds up against the dark background at this size. */
+    font-weight: 700;
+    color: #a33232;
 }
 
 blockquote .sidenote,
@@ -341,10 +384,10 @@ div.table-wrapper {
 }
 
 code, pre > code {
-    font-family: 'Monaspace Argon', Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-family: 'Fira Code', Consolas, "Liberation Mono", Menlo, Courier, monospace;
     font-weight: 600;
     font-variant-ligatures: contextual;
-    font-feature-settings: "calt" 1, "liga" 1, "ss01" 1, "ss02" 1, "ss03" 1, "ss04" 1, "ss05" 1, "ss06" 1, "ss07" 1, "ss08" 1, "ss09" 1;
+    font-feature-settings: "calt" 1, "liga" 1;
     font-size: 1.0rem;
     line-height: 1.42;
     -webkit-text-size-adjust: 100%; /* Prevent adjustments of font size after orientation changes in iOS. See https://github.com/edwardtufte/tufte-css/issues/81#issuecomment-261953409 */
@@ -362,7 +405,7 @@ h3 > code {
 
 .marginnote > code,
 .sidenote > code {
-    font-size: 1rem;
+    font-size: 0.9em;      /* relative, so it follows the note down in size */
 }
 
 pre > code {
@@ -417,9 +460,12 @@ label.margin-toggle:not(.sidenote-number) {
 
 @media (max-width: 760px) {
     body {
-        width: 84%;
-        padding-left: 8%;
-        padding-right: 8%;
+        width: 90%;
+        /* Notes render inline down here, so there is no gutter to reserve and
+           the measure can use the full screen. */
+        max-width: none;
+        padding-left: 5%;
+        padding-right: 5%;
     }
 
     hr,
@@ -460,25 +506,41 @@ label.margin-toggle:not(.sidenote-number) {
         width: 100%;
     }
 
+    /* No margin to put notes in, so they render inline where they are
+       referenced, set off by rules above and below rather than by a toggle. */
     label.margin-toggle:not(.sidenote-number) {
-        display: inline;
+        display: none;
     }
 
     .sidenote,
     .marginnote {
-        display: none;
+        display: block;
+        float: none;
+        clear: both;
+        width: 100%;
+        margin: 1.4rem 0;
+        padding: 0.9rem 0;
+        border-top: 1px solid #999;
+        border-bottom: 1px solid #999;
+        border-color: color-mix(in srgb, currentColor 35%, transparent);
+        font-size: 0.95rem;
+        line-height: 1.5;
+        text-align: left;        /* body copy is justified; notes read better ragged */
+        position: relative;
     }
 
-    .margin-toggle:checked + .sidenote,
-    .margin-toggle:checked + .marginnote {
-        display: block;
-        float: left;
-        left: 1rem;
-        clear: both;
-        width: 95%;
-        margin: 1rem 2.5%;
-        vertical-align: baseline;
-        position: relative;
+    /* Marker colour comes from the base rule; only the size needs bumping here */
+    .sidenote:before {
+        font-size: 0.85rem;
+        top: -0.35rem;
+    }
+
+    /* Undo the pull-into-the-margin offsets for notes inside a blockquote */
+    blockquote .sidenote,
+    blockquote .marginnote {
+        margin-right: 0;
+        min-width: 0;
+        width: 100%;
     }
 
     label {
@@ -602,6 +664,37 @@ pre,
 }
 .nav-title:hover {
   color: #800000;                /* hover:text-[#800000] */
+}
+
+/* End-of-article flourish. The class beats both `img { max-width: 100% }` and
+   the mobile `img { width: 100% }` on specificity, so it keeps its own size at
+   every breakpoint. The artwork is black ink on transparency, which would
+   vanish against the dark background — hence the invert below. */
+.dinkus {
+    display: block;
+    width: 255px;
+    max-width: 50%;
+    height: auto;
+    margin: 1.5rem auto 1rem;
+    opacity: 0.8;
+}
+
+/* Centre on the viewport rather than the text column. The body box is pulled
+   left of centre by half its 18% right padding — the sidenote gutter — so
+   shifting back by 9vw lands the ornament on the middle of the screen. That 9
+   is half of 18: if the gutter changes, this changes with it. Desktop only;
+   below 760px the body has symmetric 5% padding and is already centred. */
+@media (min-width: 761px) {
+    .dinkus {
+        position: relative;
+        left: 9vw;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .dinkus {
+        filter: invert(1);
+    }
 }
 
 .editorial .post-header {

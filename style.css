@@ -74,6 +74,11 @@ main {
 .about p + p {
   margin-top: 1rem;              /* space-y-4 */
 }
+/* The about disclosure only exists on mobile — see the media query below */
+.about-toggle,
+.about-summary {
+  display: none;
+}
 
 /* —— Right column (index) —— */
 .right-col {
@@ -220,14 +225,6 @@ main {
 .post-content > * + * {
   margin-top: 1rem;              /* space-y-4 */
 }
-.post-content::first-letter {
-  float: left;
-  font-size: 5rem;               /* first-letter:text-7xl */
-  color: #800000;                /* first-letter:text-[#800000] */
-  padding-right: 1rem;           /* first-letter:pr-4 */
-  line-height: 1;
-}
-
 .divider-link {
   position: relative;        /* for ::after positioning */
   display: inline-block;     /* shrink‑to‑fit its contents */ 
@@ -247,5 +244,76 @@ main {
 
 .divider-link:hover::after {
   background-color: #800000;
+}
+
+/* —— Mobile (index) —— */
+/* 760px matches tufte.css's breakpoint so both pages flip at the same width */
+@media (max-width: 760px) {
+  main {
+    margin-top: clamp(2.5rem, 8vh, 5rem);
+  }
+
+  /* Collapse to a single column: title, blurb, then the article list */
+  .columns {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    row-gap: 1.75rem;
+  }
+  .title,
+  .left-col,
+  .right-col {
+    grid-column: 1;
+    grid-row: auto;              /* let auto-placement stack them */
+  }
+  .title {
+    font-size: 4rem;
+  }
+
+  /* The blurb becomes a disclosure, collapsed on load */
+  .about-toggle {
+    display: block;
+    position: absolute;          /* offscreen but still keyboard-focusable */
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+  .about-summary {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #ffffff;
+    cursor: pointer;
+    transition: color 200ms ease-in-out;
+  }
+  .about-summary::after {
+    content: "+";
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+  .about-toggle:checked ~ .about-summary::after {
+    content: "\2013";            /* en dash, reads better than a hyphen */
+  }
+  .about-toggle:focus-visible ~ .about-summary,
+  .about-summary:hover {
+    color: #800000;
+  }
+
+  .about {
+    display: none;
+    margin: 1rem 0 0;
+    font-size: 1.05rem;
+  }
+  .about-toggle:checked ~ .about {
+    display: block;
+  }
+
+  /* The row-gap already separates the list, so drop the divider's own margin */
+  .divider {
+    margin-bottom: 0.75rem;
+  }
 }
 
