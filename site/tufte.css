@@ -4,52 +4,88 @@
    adapted from https://github.com/edwardtufte/et-book/blob/gh-pages/et-book.css */
 
 @font-face {
-    font-family: "et-book";
-    src: url("et-book/et-book-roman-line-figures/et-book-roman-line-figures.eot");
-    src: url("et-book/et-book-roman-line-figures/et-book-roman-line-figures.eot?#iefix") format("embedded-opentype"), url("et-book/et-book-roman-line-figures/et-book-roman-line-figures.woff") format("woff"), url("et-book/et-book-roman-line-figures/et-book-roman-line-figures.ttf") format("truetype"), url("et-book/et-book-roman-line-figures/et-book-roman-line-figures.svg#etbookromanosf") format("svg");
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
+  font-family: "et-book";
+  src: url("et-book/et-book-roman-line-figures/et-book-roman-line-figures.eot");
+  src:
+    url("et-book/et-book-roman-line-figures/et-book-roman-line-figures.eot?#iefix")
+      format("embedded-opentype"),
+    url("et-book/et-book-roman-line-figures/et-book-roman-line-figures.woff")
+      format("woff"),
+    url("et-book/et-book-roman-line-figures/et-book-roman-line-figures.ttf")
+      format("truetype"),
+    url("et-book/et-book-roman-line-figures/et-book-roman-line-figures.svg#etbookromanosf")
+      format("svg");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-    font-family: "et-book";
-    src: url("et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.eot");
-    src: url("et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.eot?#iefix") format("embedded-opentype"), url("et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.woff") format("woff"), url("et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.ttf") format("truetype"), url("et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.svg#etbookromanosf") format("svg");
-    font-weight: normal;
-    font-style: italic;
-    font-display: swap;
+  font-family: "et-book";
+  src: url("et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.eot");
+  src:
+    url("et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.eot?#iefix")
+      format("embedded-opentype"),
+    url("et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.woff")
+      format("woff"),
+    url("et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.ttf")
+      format("truetype"),
+    url("et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.svg#etbookromanosf")
+      format("svg");
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
 }
 
 @font-face {
-    font-family: "et-book";
-    src: url("et-book/et-book-bold-line-figures/et-book-bold-line-figures.eot");
-    src: url("et-book/et-book-bold-line-figures/et-book-bold-line-figures.eot?#iefix") format("embedded-opentype"), url("et-book/et-book-bold-line-figures/et-book-bold-line-figures.woff") format("woff"), url("et-book/et-book-bold-line-figures/et-book-bold-line-figures.ttf") format("truetype"), url("et-book/et-book-bold-line-figures/et-book-bold-line-figures.svg#etbookromanosf") format("svg");
-    font-weight: bold;
-    font-style: normal;
-    font-display: swap;
+  font-family: "et-book";
+  src: url("et-book/et-book-bold-line-figures/et-book-bold-line-figures.eot");
+  src:
+    url("et-book/et-book-bold-line-figures/et-book-bold-line-figures.eot?#iefix")
+      format("embedded-opentype"),
+    url("et-book/et-book-bold-line-figures/et-book-bold-line-figures.woff")
+      format("woff"),
+    url("et-book/et-book-bold-line-figures/et-book-bold-line-figures.ttf")
+      format("truetype"),
+    url("et-book/et-book-bold-line-figures/et-book-bold-line-figures.svg#etbookromanosf")
+      format("svg");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-    font-family: "et-book-roman-old-style";
-    src: url("et-book/et-book-roman-old-style-figures/et-book-roman-old-style-figures.eot");
-    src: url("et-book/et-book-roman-old-style-figures/et-book-roman-old-style-figures.eot?#iefix") format("embedded-opentype"), url("et-book/et-book-roman-old-style-figures/et-book-roman-old-style-figures.woff") format("woff"), url("et-book/et-book-roman-old-style-figures/et-book-roman-old-style-figures.ttf") format("truetype"), url("et-book/et-book-roman-old-style-figures/et-book-roman-old-style-figures.svg#etbookromanosf") format("svg");
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
+  font-family: "et-book-roman-old-style";
+  src: url("et-book/et-book-roman-old-style-figures/et-book-roman-old-style-figures.eot");
+  src:
+    url("et-book/et-book-roman-old-style-figures/et-book-roman-old-style-figures.eot?#iefix")
+      format("embedded-opentype"),
+    url("et-book/et-book-roman-old-style-figures/et-book-roman-old-style-figures.woff")
+      format("woff"),
+    url("et-book/et-book-roman-old-style-figures/et-book-roman-old-style-figures.ttf")
+      format("truetype"),
+    url("et-book/et-book-roman-old-style-figures/et-book-roman-old-style-figures.svg#etbookromanosf")
+      format("svg");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-    font-family: "Monaspace Argon";
-    src: url("https://cdn.jsdelivr.net/fontsource/fonts/monaspace-argon@latest/latin-600-normal.woff2") format("woff2"), url("https://cdn.jsdelivr.net/fontsource/fonts/monaspace-argon@latest/latin-600-normal.woff") format("woff");
-    font-weight: 600;
-    font-style: normal;
-    font-display: swap;
+  font-family: "Monaspace Argon";
+  src:
+    url("https://cdn.jsdelivr.net/fontsource/fonts/monaspace-argon@latest/latin-600-normal.woff2")
+      format("woff2"),
+    url("https://cdn.jsdelivr.net/fontsource/fonts/monaspace-argon@latest/latin-600-normal.woff")
+      format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
 }
 
 /* Tufte CSS styles */
 html {
-    font-size: 15px;
+  font-size: 15px;
 }
 
 /* Article type is set in rem throughout, so the whole page scales from this one
@@ -59,117 +95,118 @@ html {
    narrower windows, so the same page read a size smaller on a laptop than on a
    monitor. The measure is what should respond to width, not the type size. */
 @media (min-width: 761px) {
-    html {
-        font-size: 19px;
-    }
+  html {
+    font-size: 19px;
+  }
 }
 
 body {
-    width: 85%;
-    /* ~63 characters at the current type size — the measure was 960px, which
+  width: 85%;
+  /* ~63 characters at the current type size — the measure was 960px, which
        ran to ~88 and read long. Sidenotes hang 44% of the column to the right,
        so on screens too narrow to seat both, the measure yields rather than
        pushing the notes off the edge into a horizontal scrollbar. The 61vw
        ceiling is 0.59V/(0.5 + 0.44), i.e. the widest column whose note still
        lands inside the viewport; it needs revisiting if the overhang changes. */
-    max-width: min(660px, 61vw);
-    margin-left: auto;
-    margin-right: auto;
-    padding-right: 18%;
-    font-family: Alegreya, Petrona, Georgia, serif;
-    font-weight: 440;      /* Alegreya is variable; 440 is a touch above regular */
-    font-size: 0.95rem;    /* was a fixed 14px, which wouldn't scale with the root */
-    line-height: 32px;
-    background-color: #fffff8;
-    color: #111;
-    counter-reset: sidenote-counter;
+  max-width: min(660px, 61vw);
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 100px;
+  padding-right: 18%;
+  font-family: Alegreya, Petrona, Georgia, serif;
+  font-weight: 440; /* Alegreya is variable; 440 is a touch above regular */
+  font-size: 0.95rem; /* was a fixed 14px, which wouldn't scale with the root */
+  line-height: 32px;
+  background-color: #fffff8;
+  color: #111;
+  counter-reset: sidenote-counter;
 }
 
 /* Adds dark mode */
 @media (prefers-color-scheme: dark) {
-    body {
-        background-color: #151515;
-        color: #ddd;
-    }
+  body {
+    background-color: #151515;
+    color: #ddd;
+  }
 }
 
 h1 {
-    font-weight: 400;
-    margin-top: 4rem;
-    margin-bottom: 1.5rem;
-    font-size: 3.2rem;
-    line-height: 1;
+  font-weight: 400;
+  margin-top: 4rem;
+  margin-bottom: 1.5rem;
+  font-size: 3.2rem;
+  line-height: 1;
 }
 
 h2 {
-    font-style: italic;
-    font-weight: 400;
-    margin-top: 2.1rem;
-    margin-bottom: 1.4rem;
-    font-size: 2.2rem;
-    line-height: 1;
+  font-style: italic;
+  font-weight: 400;
+  margin-top: 2.1rem;
+  margin-bottom: 1.4rem;
+  font-size: 2.2rem;
+  line-height: 1;
 }
 
 h3 {
-    font-style: italic;
-    font-weight: 400;
-    font-size: 1.7rem;
-    margin-top: 2rem;
-    margin-bottom: 1.4rem;
-    line-height: 1;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.7rem;
+  margin-top: 2rem;
+  margin-bottom: 1.4rem;
+  line-height: 1;
 }
 
 hr {
-    display: block;
-    height: 1px;
-    width: 55%;
-    border: 0;
-    border-top: 1px solid #ccc;
-    margin: 1em 0;
-    padding: 0;
+  display: block;
+  height: 1px;
+  width: 55%;
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 1em 0;
+  padding: 0;
 }
 
 p.subtitle {
-    font-style: italic;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    font-size: 1.8rem;
-    display: block;
-    line-height: 1;
+  font-style: italic;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  display: block;
+  line-height: 1;
 }
 
 .numeral {
-    font-family: et-book-roman-old-style;
+  font-family: et-book-roman-old-style;
 }
 
 .danger {
-    color: red;
+  color: red;
 }
 
 article {
-    /* Bottom trimmed from 5rem: it used to be the page's trailing whitespace,
+  /* Bottom trimmed from 5rem: it used to be the page's trailing whitespace,
        but the dinkus now closes the article and was being pushed far adrift. */
-    padding: 5rem 0rem 1rem;
+  padding: 5rem 0rem 1rem;
 }
 
 section {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 
 p,
 dl,
 ol,
 ul {
-    font-size: 1.1rem;
-    line-height: 1.45;     /* unitless so it tracks the type, not the root */
+  font-size: 1.1rem;
+  line-height: 1.45; /* unitless so it tracks the type, not the root */
 }
 
 p {
-    margin-top: 1.4rem;
-    margin-bottom: 1.4rem;
-    padding-right: 0;
-    vertical-align: baseline;
+  margin-top: 1.4rem;
+  margin-bottom: 1.4rem;
+  padding-right: 0;
+  vertical-align: baseline;
 }
 
 /* Drop cap on the article's opening paragraph. The .dropcap class is applied at
@@ -178,383 +215,387 @@ p {
    of truth keeps the two from drifting apart.
    Sized in em so it tracks the body type at every breakpoint. */
 .post-content > p.dropcap::first-letter {
-    float: left;
-    color: #800000;
-    font-size: 4.6em;
-    line-height: 0.76;
-    font-weight: 700;
-    padding-right: 0.07em;
-    padding-top: 0.03em;
+  float: left;
+  color: #800000;
+  font-size: 4.6em;
+  line-height: 0.76;
+  font-weight: 700;
+  padding-right: 0.07em;
+  padding-top: 0.03em;
 }
 
 /* Chapter Epigraphs */
 div.epigraph {
-    margin: 5em 0;
+  margin: 5em 0;
 }
 
 div.epigraph > blockquote {
-    margin-top: 3em;
-    margin-bottom: 3em;
+  margin-top: 3em;
+  margin-bottom: 3em;
 }
 
 div.epigraph > blockquote,
 div.epigraph > blockquote > p {
-    font-style: italic;
+  font-style: italic;
 }
 
 div.epigraph > blockquote > footer {
-    font-style: normal;
+  font-style: normal;
 }
 
 div.epigraph > blockquote > footer > cite {
-    font-style: italic;
+  font-style: italic;
 }
 /* end chapter epigraphs styles */
 
 blockquote {
-    font-size: 1.4rem;
-    border-left: 3px solid #ccc;
-    padding-left: 1.2em;
-    margin-left: 0;
-    font-style: italic;
+  font-size: 1.4rem;
+  border-left: 3px solid #ccc;
+  padding-left: 1.2em;
+  margin-left: 0;
+  font-style: italic;
 }
 
 @media (prefers-color-scheme: dark) {
-    blockquote {
-        border-left-color: #555;
-    }
+  blockquote {
+    border-left-color: #555;
+  }
 }
 
 blockquote p {
-    width: 64%;
-    margin-right: 40px;
+  width: 64%;
+  margin-right: 40px;
 }
 
 blockquote footer {
-    width: 64%;
-    font-size: 1.1rem;
-    font-style: normal;
-    text-align: right;
-    color: #555;
+  width: 64%;
+  font-size: 1.1rem;
+  font-style: normal;
+  text-align: right;
+  color: #555;
 }
 
 blockquote footer::before {
-    content: "\2014\00a0";
+  content: "\2014\00a0";
 }
 
 @media (prefers-color-scheme: dark) {
-    blockquote footer {
-        color: #aaa;
-    }
+  blockquote footer {
+    color: #aaa;
+  }
 }
 
 blockquote cite {
-    font-style: normal;
+  font-style: normal;
 }
 
 blockquote footer cite {
-    font-style: italic;
+  font-style: italic;
 }
 
 section > p,
 section > footer,
 section > table {
-    width: 68%;
+  width: 68%;
 }
 
 /* 63 + 5 == 68, to be the same width as paragraph */
 section > dl,
 section > ol,
 section > ul {
-    width: 63%;
-    -webkit-padding-start: 5%;
+  width: 63%;
+  -webkit-padding-start: 5%;
 }
 
 dt:not(:first-child),
 li:not(:first-child) {
-    margin-top: 0.25rem;
+  margin-top: 0.25rem;
 }
 
 figure {
-    padding: 0;
-    border: 0;
-    font-size: 100%;
-    font: inherit;
-    vertical-align: baseline;
-    max-width: 55%;
-    -webkit-margin-start: 0;
-    -webkit-margin-end: 0;
-    margin: 0 0 3em 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+  max-width: 55%;
+  -webkit-margin-start: 0;
+  -webkit-margin-end: 0;
+  margin: 0 0 3em 0;
 }
 
 figcaption {
-    float: right;
-    clear: right;
-    margin-top: 0;
-    margin-bottom: 0;
-    font-size: 1.1rem;
-    line-height: 1.6;
-    vertical-align: baseline;
-    position: relative;
-    max-width: 40%;
+  float: right;
+  clear: right;
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  vertical-align: baseline;
+  position: relative;
+  max-width: 40%;
 }
 
 figure.fullwidth figcaption {
-    margin-right: 24%;
+  margin-right: 24%;
 }
 
 a:link,
 a:visited {
-    color: inherit;
-    text-underline-offset: 0.1em;
-    text-decoration-thickness: 0.05em;
+  color: inherit;
+  text-underline-offset: 0.1em;
+  text-decoration-thickness: 0.05em;
 }
 
 /* Sidenotes, margin notes, figures, captions */
 img {
-    max-width: 100%;
+  max-width: 100%;
 }
 
 .sidenote,
 .marginnote {
-    float: right;
-    clear: right;
-    /* Overhang is 44% against a 37% note, leaving a 7% (~46px) channel between
+  float: right;
+  clear: right;
+  /* Overhang is 44% against a 37% note, leaving a 7% (~46px) channel between
        the text column and the note so the two don't crowd each other. */
-    margin-right: -44%;
-    width: 37%;
-    margin-top: 0.3rem;
-    margin-bottom: 0;
-    /* Was 1.1rem — identical to body copy, so notes read as main text that had
+  margin-right: -44%;
+  width: 37%;
+  margin-top: 0.3rem;
+  margin-bottom: 0;
+  /* Was 1.1rem — identical to body copy, so notes read as main text that had
        wandered into the margin. 0.87rem ≈ 16.5px against 20.9px body. */
-    font-size: 0.87rem;
-    line-height: 1.4;
-    vertical-align: baseline;
-    position: relative;
+  font-size: 0.87rem;
+  line-height: 1.4;
+  vertical-align: baseline;
+  position: relative;
 }
 
 .sidenote-number {
-    counter-increment: sidenote-counter;
+  counter-increment: sidenote-counter;
 }
 
 .sidenote-number:after,
 .sidenote:before {
-    font-family: et-book-roman-old-style;
-    position: relative;
-    vertical-align: baseline;
+  font-family: et-book-roman-old-style;
+  position: relative;
+  vertical-align: baseline;
 }
 
 .sidenote-number:after {
-    content: counter(sidenote-counter);
-    font-size: 0.7rem;
-    top: -0.5rem;
-    left: 0.1rem;
+  content: counter(sidenote-counter);
+  font-size: 0.7rem;
+  top: -0.5rem;
+  left: 0.1rem;
 }
 
 .sidenote:before {
-    content: counter(sidenote-counter) " ";
-    font-size: 0.7rem;
-    top: -0.5rem;
-    /* Maroon marker at every width, not just mobile. Lighter than the #800000
+  content: counter(sidenote-counter) " ";
+  font-size: 0.7rem;
+  top: -0.5rem;
+  /* Maroon marker at every width, not just mobile. Lighter than the #800000
        accent so it holds up against the dark background at this size. */
-    font-weight: 700;
-    color: #a33232;
+  font-weight: 700;
+  color: #a33232;
 }
 
 blockquote .sidenote,
 blockquote .marginnote {
-    margin-right: -82%;
-    min-width: 59%;
-    text-align: left;
+  margin-right: -82%;
+  min-width: 59%;
+  text-align: left;
 }
 
 div.fullwidth,
 table.fullwidth {
-    width: 100%;
+  width: 100%;
 }
 
 div.table-wrapper {
-    overflow-x: auto;
-    font-family: "Trebuchet MS", "Gill Sans", "Gill Sans MT", sans-serif;
+  overflow-x: auto;
+  font-family: "Trebuchet MS", "Gill Sans", "Gill Sans MT", sans-serif;
 }
 
 .sans {
-    font-family: "Gill Sans", "Gill Sans MT", Calibri, sans-serif;
-    letter-spacing: .03em;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, sans-serif;
+  letter-spacing: 0.03em;
 }
 
-code, pre > code {
-    font-family: 'Fira Code', Consolas, "Liberation Mono", Menlo, Courier, monospace;
-    font-weight: 600;
-    font-variant-ligatures: contextual;
-    font-feature-settings: "calt" 1, "liga" 1;
-    font-size: 1.0rem;
-    line-height: 1.42;
-    -webkit-text-size-adjust: 100%; /* Prevent adjustments of font size after orientation changes in iOS. See https://github.com/edwardtufte/tufte-css/issues/81#issuecomment-261953409 */
+code,
+pre > code {
+  font-family:
+    "Fira Code", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-weight: 600;
+  font-variant-ligatures: contextual;
+  font-feature-settings:
+    "calt" 1,
+    "liga" 1;
+  font-size: 1rem;
+  line-height: 1.42;
+  -webkit-text-size-adjust: 100%; /* Prevent adjustments of font size after orientation changes in iOS. See https://github.com/edwardtufte/tufte-css/issues/81#issuecomment-261953409 */
 }
 
 .sans > code {
-    font-size: 1.2rem;
+  font-size: 1.2rem;
 }
 
 h1 > code,
 h2 > code,
 h3 > code {
-    font-size: 0.80em;
+  font-size: 0.8em;
 }
 
 .marginnote > code,
 .sidenote > code {
-    font-size: 0.9em;      /* relative, so it follows the note down in size */
+  font-size: 0.9em; /* relative, so it follows the note down in size */
 }
 
 pre > code {
-    font-size: 1.05rem;
-    width: 52.5%;
-    margin-left: 2.5%;
-    overflow-x: auto;
-    display: block;
+  font-size: 1.05rem;
+  width: 52.5%;
+  margin-left: 2.5%;
+  overflow-x: auto;
+  display: block;
 }
 
 pre.fullwidth > code {
-    width: 90%;
+  width: 90%;
 }
 
 .fullwidth {
-    max-width: 90%;
-    clear:both;
+  max-width: 90%;
+  clear: both;
 }
 
 span.newthought {
-    font-variant: small-caps;
-    font-size: 1.2em;
+  font-variant: small-caps;
+  font-size: 1.2em;
 }
 
 input.margin-toggle {
-    display: none;
+  display: none;
 }
 
 label.sidenote-number {
-    display: inline-block;
-    max-height: 2rem; /* should be less than or equal to paragraph line-height */
+  display: inline-block;
+  max-height: 2rem; /* should be less than or equal to paragraph line-height */
 }
 
 label.margin-toggle:not(.sidenote-number) {
-    display: none;
+  display: none;
 }
 
 .iframe-wrapper {
-    position: relative;
-    padding-bottom: 56.25%; /* 16:9 */
-    padding-top: 25px;
-    height: 0;
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  padding-top: 25px;
+  height: 0;
 }
 
 .iframe-wrapper iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 @media (max-width: 760px) {
-    body {
-        width: 90%;
-        /* Notes render inline down here, so there is no gutter to reserve and
+  body {
+    width: 90%;
+    /* Notes render inline down here, so there is no gutter to reserve and
            the measure can use the full screen. */
-        max-width: none;
-        padding-left: 5%;
-        padding-right: 5%;
-    }
+    max-width: none;
+    padding-left: 5%;
+    padding-right: 5%;
+  }
 
-    hr,
-    section > p,
-    section > footer,
-    section > table {
-        width: 100%;
-    }
+  hr,
+  section > p,
+  section > footer,
+  section > table {
+    width: 100%;
+  }
 
-    pre > code {
-        width: 97%;
-    }
+  pre > code {
+    width: 97%;
+  }
 
-    section > dl,
-    section > ol,
-    section > ul {
-        width: 90%;
-    }
+  section > dl,
+  section > ol,
+  section > ul {
+    width: 90%;
+  }
 
-    figure {
-        max-width: 90%;
-    }
+  figure {
+    max-width: 90%;
+  }
 
-    figcaption,
-    figure.fullwidth figcaption {
-        margin-right: 0%;
-        max-width: none;
-    }
+  figcaption,
+  figure.fullwidth figcaption {
+    margin-right: 0%;
+    max-width: none;
+  }
 
-    blockquote {
-        margin-left: 0;
-        margin-right: 0em;
-        padding-left: 1em;
-    }
+  blockquote {
+    margin-left: 0;
+    margin-right: 0em;
+    padding-left: 1em;
+  }
 
-    blockquote p,
-    blockquote footer {
-        width: 100%;
-    }
+  blockquote p,
+  blockquote footer {
+    width: 100%;
+  }
 
-    /* No margin to put notes in, so they render inline where they are
+  /* No margin to put notes in, so they render inline where they are
        referenced, set off by rules above and below rather than by a toggle. */
-    label.margin-toggle:not(.sidenote-number) {
-        display: none;
-    }
+  label.margin-toggle:not(.sidenote-number) {
+    display: none;
+  }
 
-    .sidenote,
-    .marginnote {
-        display: block;
-        float: none;
-        clear: both;
-        width: 100%;
-        margin: 1.4rem 0;
-        padding: 0.9rem 0;
-        border-top: 1px solid #999;
-        border-bottom: 1px solid #999;
-        border-color: color-mix(in srgb, currentColor 35%, transparent);
-        font-size: 0.95rem;
-        line-height: 1.5;
-        text-align: left;        /* body copy is justified; notes read better ragged */
-        position: relative;
-    }
+  .sidenote,
+  .marginnote {
+    display: block;
+    float: none;
+    clear: both;
+    width: 100%;
+    margin: 1.4rem 0;
+    padding: 0.9rem 0;
+    border-top: 1px solid #999;
+    border-bottom: 1px solid #999;
+    border-color: color-mix(in srgb, currentColor 35%, transparent);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    text-align: left; /* body copy is justified; notes read better ragged */
+    position: relative;
+  }
 
-    /* Marker colour comes from the base rule; only the size needs bumping here */
-    .sidenote:before {
-        font-size: 0.85rem;
-        top: -0.35rem;
-    }
+  /* Marker colour comes from the base rule; only the size needs bumping here */
+  .sidenote:before {
+    font-size: 0.85rem;
+    top: -0.35rem;
+  }
 
-    /* Undo the pull-into-the-margin offsets for notes inside a blockquote */
-    blockquote .sidenote,
-    blockquote .marginnote {
-        margin-right: 0;
-        min-width: 0;
-        width: 100%;
-    }
+  /* Undo the pull-into-the-margin offsets for notes inside a blockquote */
+  blockquote .sidenote,
+  blockquote .marginnote {
+    margin-right: 0;
+    min-width: 0;
+    width: 100%;
+  }
 
-    label {
-        cursor: pointer;
-    }
+  label {
+    cursor: pointer;
+  }
 
-    div.table-wrapper,
-    table {
-        width: 85%;
-    }
+  div.table-wrapper,
+  table {
+    width: 85%;
+  }
 
-    img {
-        width: 100%;
-    }
+  img {
+    width: 100%;
+  }
 }
 
 pre,
@@ -570,19 +611,19 @@ pre code,
 /* Keep long lines readable without breaking layout */
 pre {
   overflow-x: auto;
-  white-space: pre;      /* keep formatting */
+  white-space: pre; /* keep formatting */
 }
 
 pre,
 .highlight pre,
 .syntect pre {
-  overflow-x: auto;      /* not scroll */
-  overflow-y: hidden;    /* optional: avoids a vertical bar from rounding/padding */
+  overflow-x: auto; /* not scroll */
+  overflow-y: hidden; /* optional: avoids a vertical bar from rounding/padding */
 }
 
 /* If Tufte set overflow: scroll anywhere, explicitly undo it */
 pre {
-  overflow: visible;     /* resets overflow shorthand */
+  overflow: visible; /* resets overflow shorthand */
   overflow-x: auto;
   overflow-y: hidden;
 }
@@ -593,25 +634,25 @@ pre,
   box-sizing: border-box;
   max-width: 100%;
   overflow-x: auto;
-  white-space: pre;      /* keep code intact */
+  white-space: pre; /* keep code intact */
 }
 
 .post-meta {
   display: flex;
   justify-content: left;
-  gap: 1rem;                     /* gap-4 */
+  gap: 1rem; /* gap-4 */
 }
 .author,
 .date {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 1.125rem;           /* text-lg */
+  font-family: "JetBrains Mono", monospace;
+  font-size: 1.125rem; /* text-lg */
 }
 
 .nav {
-  top: 0; 
+  top: 0;
   padding-top: 4em;
   width: 100%;
-  position: absolute; 
+  position: absolute;
   left: 50%;
   transform: translateX(-50%);
 }
@@ -637,7 +678,6 @@ pre,
   justify-content: center;
 }
 
-
 .nav-item {
   flex: 1;
   text-align: center;
@@ -645,25 +685,25 @@ pre,
 .title {
   display: block;
   font-weight: 400;
-  font-family: 'Newsreader', serif;
+  font-family: "Newsreader", serif;
   font-style: italic;
-  font-size: 5rem;               /* text-8xl */
+  font-size: 5rem; /* text-8xl */
   color: #800000;
   text-decoration: none;
 }
 .nav-title {
   display: block;
   justify-content: center;
-  font-family: 'Newsreader', serif;
+  font-family: "Newsreader", serif;
   font-style: italic;
-  font-size: 5rem;               /* text-8xl */
+  font-size: 5rem; /* text-8xl */
   line-height: 1;
   color: #ffffff;
   text-decoration: none;
   transition: color 300ms ease-in-out; /* duration-300 */
 }
 .nav-title:hover {
-  color: #800000;                /* hover:text-[#800000] */
+  color: #800000; /* hover:text-[#800000] */
 }
 
 /* End-of-article flourish. The class beats both `img { max-width: 100% }` and
@@ -671,12 +711,12 @@ pre,
    every breakpoint. The artwork is black ink on transparency, which would
    vanish against the dark background — hence the invert below. */
 .dinkus {
-    display: block;
-    width: 255px;
-    max-width: 50%;
-    height: auto;
-    margin: 1.5rem auto 1rem;
-    opacity: 0.8;
+  display: block;
+  width: 255px;
+  max-width: 50%;
+  height: auto;
+  margin: 1.5rem auto 1rem;
+  opacity: 0.8;
 }
 
 /* Centre on the viewport rather than the text column. The body box is pulled
@@ -685,16 +725,16 @@ pre,
    is half of 18: if the gutter changes, this changes with it. Desktop only;
    below 760px the body has symmetric 5% padding and is already centred. */
 @media (min-width: 761px) {
-    .dinkus {
-        position: relative;
-        left: 9vw;
-    }
+  .dinkus {
+    position: relative;
+    left: 9vw;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
-    .dinkus {
-        filter: invert(1);
-    }
+  .dinkus {
+    filter: invert(1);
+  }
 }
 
 .editorial .post-header {
@@ -707,31 +747,32 @@ pre,
 }
 
 a {
-  text-decoration: underline;               /* always underlined */
-  color: inherit;                           /* no color change on visited */
-  transition: color 100ms;      /* animate color over 0.3s on hover :contentReference[oaicite:0]{index=0} */
+  text-decoration: underline; /* always underlined */
+  color: inherit; /* no color change on visited */
+  transition: color 100ms; /* animate color over 0.3s on hover :contentReference[oaicite:0]{index=0} */
 }
 
 /* —— Keep the same color after visited —— */
 a:visited {
-  color: inherit;             /* keeps visited links from turning purple :contentReference[oaicite:1]{index=1} */
+  color: inherit; /* keeps visited links from turning purple :contentReference[oaicite:1]{index=1} */
 }
 
 a:hover,
-a:visited:hover {                    /* ensures visited links also turn maroon */
-  color: #800000;                     /* your maroon hover color */
+a:visited:hover {
+  /* ensures visited links also turn maroon */
+  color: #800000; /* your maroon hover color */
 }
 
 pre > code {
   width: 100%;
   max-width: 100%;
-  margin-left: 0;     /* key: kills the 2.5% push from tufte.css */
-  padding-left: 0;    /* defensive: some themes pad code */
+  margin-left: 0; /* key: kills the 2.5% push from tufte.css */
+  padding-left: 0; /* defensive: some themes pad code */
   box-sizing: border-box;
 }
 
 pre {
-  overflow-x: auto;   /* scrollbar only when needed */
+  overflow-x: auto; /* scrollbar only when needed */
 }
 
 nav.toc {
@@ -750,7 +791,7 @@ nav.toc ul {
 }
 
 nav.toc li {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 1.8rem;
   line-height: 1.8;
   margin-top: 0;
@@ -766,7 +807,7 @@ nav.toc li a:hover {
 }
 
 nav.toc li.toc-h1 {
-  font-size: 2.0rem;
+  font-size: 2rem;
   margin-top: 0.6rem;
 }
 
