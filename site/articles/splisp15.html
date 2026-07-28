@@ -7,9 +7,12 @@
     text-align: justify;
   }
   </style>
+  <!-- Default selector is "p, li, dd, blockquote, figcaption"; the drop-cap
+       paragraph is excluded so its lines can wrap around the floated cap. -->
   <script
     type="module"
     blocking="render"
+    data-justif-selector="p:not(.dropcap), li, dd, blockquote, figcaption"
     src="https://cdn.jsdelivr.net/npm/justif@0.4.2/dist/auto.js"
   ></script>
   <meta charset="UTF-8">
@@ -18,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Fira+Code:wght@300..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Wittgenstein:ital,wght@0,400..900;1,400..900&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400..900;1,400..900&family=Baskervville:ital@0;1&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Fira+Code:wght@300..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Wittgenstein:ital,wght@0,400..900;1,400..900&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="../tufte.css">
   <link rel="stylesheet" href="../code_highlight.css">
@@ -59,10 +62,10 @@
       display: none;
   }
   pre.code {
-      font-family: 'Monaspace Argon', monospace;
+      font-family: 'Fira Code', monospace;
       font-weight: 600;
       font-variant-ligatures: contextual;
-      font-feature-settings: "calt" 1, "liga" 1, "ss01" 1, "ss02" 1, "ss03" 1, "ss04" 1, "ss05" 1, "ss06" 1, "ss07" 1, "ss08" 1, "ss09" 1;
+      font-feature-settings: "calt" 1, "liga" 1;
       max-width: 100%;
       overflow-x: auto;
       overflow-y: hidden;
@@ -115,6 +118,46 @@
   .divider-link:hover::after {
       background-color: #800000;
   }
+  /* Code sits inside the text column, so the type carries the line density
+     instead of the width: 0.8rem ≈ 15.2px against 20.9px prose, which fits
+     roughly 72 characters in the 660px measure. Specificity note — the pair of
+     selectors is needed because tufte's `pre > code` sets a size on the inner
+     element and would otherwise win over inheritance from `pre.code`. */
+  @media (min-width: 761px) {
+      pre.code,
+      pre.code > code {
+          font-size: 0.8rem;
+      }
+  }
+  /* Mobile: trade type size and chrome for characters-per-line, and let the
+     block bleed past the text column to the edge of the screen. */
+  @media (max-width: 760px) {
+      .code-block {
+          margin: 1.1em -4.5%;   /* just shy of full bleed, so the corners read */
+          border-radius: 4px;
+      }
+      .code-block::before {
+          font-size: 0.62em;
+          padding: 0.3em 0.7em;
+          letter-spacing: 0.08em;
+      }
+      pre.code,
+      pre.code > code {
+          font-size: 0.72rem;    /* beats tufte's `pre > code` on specificity */
+          line-height: 1.35;
+      }
+      pre.code {
+          padding: 0.6em 0.7em;
+      }
+      .post-content table {
+          width: 100%;
+          font-size: 0.8em;
+      }
+      .post-content th,
+      .post-content td {
+          padding: 0.35em 0.5em;
+      }
+  }
   </style>
   <nav class="nav editorial-nav">
     <div class="nav-center">
@@ -134,32 +177,30 @@
 
       <article class="post-content">
         <html><head></head><body><nav class="toc"><ul>
-  <li class="toc-h1"><a href="#addenda">Addenda</a></li>
-  <li class="toc-h2"><a href="#special-forms">Special Forms</a></li>
-  <li class="toc-h2"><a href="#desugaring">Desugaring</a></li>
-  <li class="toc-h3"><a href="#let">Let</a></li>
-  <li class="toc-h3"><a href="#let-recursive">Let Recursive</a></li>
-  <li class="toc-h2"><a href="#implementations">Implementations</a></li>
-  <li class="toc-h2"><a href="#scoping">Scoping</a></li>
-  <li class="toc-h3"><a href="#building-the-scope-tree">Building the Scope Tree</a></li>
-  <li class="toc-h3"><a href="#resolving-names">Resolving Names</a></li>
-  <li class="toc-h2"><a href="#code-lowering-and-the-core-language">Code Lowering and the Core Language</a></li>
+  <li class="toc-h1"><a href="#special-forms">Special Forms</a></li>
+  <li class="toc-h1"><a href="#desugaring">Desugaring</a></li>
+  <li class="toc-h2"><a href="#let">Let</a></li>
+  <li class="toc-h2"><a href="#let-recursive">Let Recursive</a></li>
+  <li class="toc-h1"><a href="#implementations">Implementations</a></li>
+  <li class="toc-h1"><a href="#scoping">Scoping</a></li>
+  <li class="toc-h2"><a href="#building-the-scope-tree">Building the Scope Tree</a></li>
+  <li class="toc-h2"><a href="#resolving-names">Resolving Names</a></li>
+  <li class="toc-h1"><a href="#code-lowering-and-the-core-language">Code Lowering and the Core Language</a></li>
 </ul></nav>
-<h1 id="addenda">Addenda</h1>
-<p>In between part one and part two of this write up, the AST undergoes a few transformation;
+<p class="dropcap">In between part one and part two of this write up, the AST undergoes a few transformation;
 these transformations are not, in the most platonic sense, strictly necessary for a compiler.
 It is perfectly plausible to jump from surface AST to machine code, it is also, as we say in the biz,
 very hard. One of the compiler design tips which I think I internalized the most through this project is that
 compilation is first and foremost a series of string manipulation passes that allow us to reason about a program
-in increasingly more primitive ways<label for="cmake" id="1" class="margin-toggle sidenote-number">
-</label><input type="checkbox" id="cmake" class="margin-toggle">
+in increasingly more primitive ways<label for="sn-1" id="1" class="margin-toggle sidenote-number">
+</label><input type="checkbox" id="sn-1" class="margin-toggle">
 <span class="sidenote">I’ve personally taken to calling this programmatic deterritorialization,
 a term which I am sure will impress all and any compiler engineer who moonlights as a postmodern philosopher</span>. In pursuit
 of a more pure core language to compile, we introduce the following transformations: <em>Special forms</em> are primitives which we privilege
 early so that we can break them down into constituent parts later, <em>desugaring</em> is the process of breaking up some of those special forms,
 <em>scoping</em> resolves human named variables to unique numeric variables, <em>lowering</em> introduces the <em>core</em> language which massively simplifies the
 code generation process.</p>
-<h2 id="special-forms">Special Forms</h2>
+<h1 id="special-forms">Special Forms</h1>
 <p>The set of special forms we support is fixed at compile time and lives in an
 enum:</p>
 <html><head></head><body><div class="code-block" data-lang="cpp"><pre class="hl-code code language-cpp"><code><span class="hl-source hl-c++"><span class="hl-comment hl-line hl-double-slash hl-c"><span class="hl-punctuation hl-definition hl-comment hl-c">//</span> ast.hpp
@@ -217,8 +258,8 @@ found the symbol carries a <code>Keyword</code> tag instead of a raw string.</p>
 </span></code></pre></div></body></html>
 <p><code>define</code> and <code>lambda</code> are validated and left as-is in the tree. <code>let</code> and
 <code>letrec</code> are desugared, rewritten into equivalent combinations of <code>lambda</code> and
-<code>set!</code>.<label for="cmake" id="2" class="margin-toggle sidenote-number">
-</label><input type="checkbox" id="cmake" class="margin-toggle">
+<code>set!</code>.<label for="sn-2" id="2" class="margin-toggle sidenote-number">
+</label><input type="checkbox" id="sn-2" class="margin-toggle">
 <span class="sidenote">
 The term “desugaring” comes from referring to certain language features as “syntactic sugar”, these are
 parts of the language which do not contribute to the overall expressive power of
@@ -226,8 +267,8 @@ the language, but make it easier to program in the language
 </span> The goal, at least at the language design level, is to get the language down to
 minimal possible representation so code generation is as simple and efficient as
 possible.</p>
-<h2 id="desugaring">Desugaring</h2>
-<h3 id="let">Let</h3>
+<h1 id="desugaring">Desugaring</h1>
+<h2 id="let">Let</h2>
 <p><strong><code>let</code></strong> introduces a set of local bindings that are all evaluated before any
 name comes into scope. This is equivalently the behavior of a lambda which is
 invoked immediatly:</p>
@@ -241,12 +282,12 @@ that the program is using them as variables <code>x</code> and <code>y</code>, i
 no ability to refer to themselves in their own definitions, which is an important
 restriction of <code>let</code> which the above desugar gives us for free. <code>let</code> does not
 allow for recursion, but clearly encodes the scope and availability of
-a variable <label for="cmake" id="3" class="margin-toggle sidenote-number">
-</label><input type="checkbox" id="cmake" class="margin-toggle">
+a variable <label for="sn-3" id="3" class="margin-toggle sidenote-number">
+</label><input type="checkbox" id="sn-3" class="margin-toggle">
 <span class="sidenote">The stronger compilation time knowledge that <code>let</code> affords us
 also enables certain optimizations which we will not be discussing in this
 article, but are worth looking into</span></p>
-<h3 id="let-recursive">Let Recursive</h3>
+<h2 id="let-recursive">Let Recursive</h2>
 <p><code>letrec</code> allows us to use recursion, it’s desguaring rules:</p>
 <html><head></head><body><div class="code-block" data-lang="text"><pre class="hl-code code language-text"><code><span class="hl-text hl-plain">(letrec ((f e)) body)
   -&gt;  (let ((f nil)) (set! f e) body)
@@ -257,7 +298,7 @@ being evaluated, enabling mutual recursion.</p>
 <p><code>letrec</code> therefore reduces to <code>let</code> plus mutation, and <code>let</code> reduces to
 <code>lambda</code>. After <code>resolve_forms</code> the AST contains only <code>define</code>, <code>lambda</code>, <code>if</code>,
 and <code>set!</code> as special forms.</p>
-<h2 id="implementations">Implementations</h2>
+<h1 id="implementations">Implementations</h1>
 <html><head></head><body><div class="code-block" data-lang="cpp"><pre class="hl-code code language-cpp"><code><span class="hl-source hl-c++"><span class="hl-comment hl-line hl-double-slash hl-c"><span class="hl-punctuation hl-definition hl-comment hl-c">//</span> parser.cpp — let
 </span>SExp <span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-toc-list hl-full-identifier hl-c++">Parser<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span><span class="hl-entity hl-name hl-function hl-c++">create_let</span></span></span><span class="hl-meta hl-function hl-parameters hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span></span></span><span class="hl-meta hl-function hl-parameters hl-c++"><span class="hl-meta hl-group hl-c++">List <span class="hl-keyword hl-operator hl-c">&amp;</span><span class="hl-variable hl-parameter hl-c++">list</span><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span></span><span class="hl-meta hl-function hl-c++"> </span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-begin hl-c++">{</span></span></span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++">
   <span class="hl-comment hl-line hl-double-slash hl-c"><span class="hl-punctuation hl-definition hl-comment hl-c">//</span> collect the binding names into a formals list ...
@@ -286,7 +327,7 @@ and <code>set!</code> as special forms.</p>
   <span class="hl-keyword hl-control hl-flow hl-return hl-c++">return</span> <span class="hl-meta hl-function-call hl-c++"><span class="hl-variable hl-function hl-c++">create_let</span><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span></span></span><span class="hl-meta hl-function-call hl-c++"><span class="hl-meta hl-group hl-c++">desugared</span></span><span class="hl-meta hl-function-call hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span></span><span class="hl-punctuation hl-terminator hl-c++">;</span> <span class="hl-comment hl-line hl-double-slash hl-c"><span class="hl-punctuation hl-definition hl-comment hl-c">//</span> reduce to let, then to lambda
 </span></span></span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-end hl-c++">}</span></span></span>
 </span></code></pre></div></body></html>
-<h2 id="scoping">Scoping</h2>
+<h1 id="scoping">Scoping</h1>
 <p>This Lisp uses <em>lexical scoping</em>: the meaning of a name is determined by where it
 appears in the source text, not where a function happens to be called from.
 Concretely, a <code>lambda</code> introduces a new scope that can see everything in the
@@ -308,7 +349,7 @@ not declared locally.</p>
 <p>The <code>Scoper</code> runs in two phases: <code>run</code> builds the tree and assigns each binding
 a unique integer ID; <code>resolve</code> replaces every string identifier in the AST with
 that integer.</p>
-<h3 id="building-the-scope-tree">Building the Scope Tree</h3>
+<h2 id="building-the-scope-tree">Building the Scope Tree</h2>
 <html><head></head><body><div class="code-block" data-lang="cpp"><pre class="hl-code code language-cpp"><code><span class="hl-source hl-c++"><span class="hl-comment hl-line hl-double-slash hl-c"><span class="hl-punctuation hl-definition hl-comment hl-c">//</span> scoper.cpp
 </span><span class="hl-keyword hl-control hl-c++">case</span> <span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span>ast<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span>Keyword<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span>lambda<span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span><span class="hl-punctuation hl-separator hl-c++">:</span> <span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-begin hl-c++">{</span>
   <span class="hl-comment hl-line hl-double-slash hl-c"><span class="hl-punctuation hl-definition hl-comment hl-c">//</span> collect the formal parameters, assigning each a fresh ID
@@ -333,7 +374,7 @@ that integer.</p>
   <span class="hl-keyword hl-control hl-flow hl-return hl-c++">return</span><span class="hl-punctuation hl-terminator hl-c++">;</span>
 <span class="hl-punctuation hl-section hl-block hl-end hl-c++">}</span></span>
 </span></code></pre></div></body></html>
-<h3 id="resolving-names">Resolving Names</h3>
+<h2 id="resolving-names">Resolving Names</h2>
 <html><head></head><body><div class="code-block" data-lang="cpp"><pre class="hl-code code language-cpp"><code><span class="hl-source hl-c++"><span class="hl-comment hl-line hl-double-slash hl-c"><span class="hl-punctuation hl-definition hl-comment hl-c">//</span> scoper.cpp
 </span><span class="hl-keyword hl-control hl-c++">if</span> <span class="hl-storage hl-modifier hl-c++">constexpr</span> <span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span>std<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span>is_same_v<span class="hl-punctuation hl-definition hl-generic hl-begin hl-c++">&lt;</span>T<span class="hl-punctuation hl-separator hl-c++">,</span> ast<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span>Symbol<span class="hl-punctuation hl-definition hl-generic hl-end hl-c++">&gt;</span><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span> <span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-begin hl-c++">{</span>
   <span class="hl-keyword hl-control hl-c++">if</span> <span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span><span class="hl-storage hl-type hl-c">auto</span> <span class="hl-keyword hl-operator hl-c">*</span>ident <span class="hl-keyword hl-operator hl-assignment hl-c">=</span> <span class="hl-meta hl-function-call hl-c++">std<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span><span class="hl-variable hl-function hl-c++">get_if</span><span class="hl-punctuation hl-definition hl-generic hl-begin hl-c++">&lt;</span>std<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span>string<span class="hl-punctuation hl-definition hl-generic hl-end hl-c++">&gt;</span><span class="hl-meta hl-function-call hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span></span></span></span><span class="hl-meta hl-function-call hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-keyword hl-operator hl-c">&amp;</span>node<span class="hl-punctuation hl-accessor hl-dot hl-c++">.</span><span class="hl-variable hl-other hl-readwrite hl-member hl-c++">value</span></span><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span></span><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span> <span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-begin hl-c++">{</span>
@@ -359,7 +400,7 @@ scopes:</p>
 <p>After this pass every <code>std::string</code> symbol in the AST has been replaced by a
 <code>SymbolID</code> which is guaranteed to be unique, two references to the same binding share the same integer
 and the scope tree can be discarded.</p>
-<h2 id="code-lowering-and-the-core-language">Code Lowering and the Core Language</h2>
+<h1 id="code-lowering-and-the-core-language">Code Lowering and the Core Language</h1>
 <p>The AST the parser produces is still quite “surface-y”, it carries all of the
 syntactic forms and still uses the <code>SExp</code> / <code>List</code> / <code>Symbol</code> vocabulary. The
 <em>core language</em> is a separate, typed IR that strips that away and gives each
@@ -466,6 +507,11 @@ global binding.</p>
 <p>The core language is what the code generator consumes.</p>
 </body></html>
       </article>
+
+      <!-- Decorative end-of-article flourish; no alt text by design -->
+      <!-- Relative, like ../tufte.css above: an absolute /img/... breaks under
+           file:// and on Pages, which serves this repo under /Sicarii/. -->
+      <img class="dinkus" src="../img/dinkus.png" alt="" aria-hidden="true">
     </main>
   </div>
   <script>

@@ -1,14 +1,10 @@
-# Preamble
-
-## Introduction 
-
 Lisp is a language/concept/idea/philosophy that has been, by people a sizable margin older than me on the internet, sermonized to me on occasion. I've written a touch of it here and there, having started but never finished SICP, which I'll do one day soon I promise, and getting as far as 15 out of the famous 99 lisp problems. This is to say that I know enough lisp to understand why for a certain generation of programmers it was a synecdoche for software writ large. It's trivially easy to parse and writing an interpreter for it can famously be written in some 40 lines, in lisp itself no less! I've chosen to write a Lisp compiler for a couple of reasons, firstly, I've wanted to write a compiler for sometime; motivated by a basic hubris that I could do better, which I think all software people share to some extent. I was spurred into actually starting this project by Stevey's article, [Rich Programmer Food](https://steve-yegge.blogspot.com/2007/06/rich-programmer-food.html?) where this slightly bold claim: 
 
 > If you don't know how compilers work, then you don't know how computers work
 
 Being an unfortunately Kant-y "first principles" guy who painfully taught himself E&M because "it's embarrassing to be a computer person who doesn't understand how electricity works",I found Stevey's admittedly diatribal argument very persuasive. The language of choice for this escapade is c++ because I need some way to prove I can program in c++. I also felt that I haven't given c++ a fair chance, only having used it when a pre-existing project I have been vetted into used it or in class. Scout's honour, I will try to reserve overly opinionated judgements on the language to snarky remarks and side notes. This article will be organized in the order that I implemented these features in an effort to put together a narrative, as well as allow us to get right to programming and sprinkle theory along the way.
 
-## Build Systems
+# Build Systems
 
 Fudge. Before we can get to coding we have to contend with building the project, I don't say anything very interesting from a technical perspective here, none of this will be on the test. You almost forget that this isn't an entirely solved problem. In Python uv has solved any pip issue I've ever had, cargo is delightful, and even in Haskell cabal is serviceable, probably, I will not pretend to have attempted to deploy in Haskell. In C/c++ we still have to contend with the early architectural decision of "how should I build this?" 
 

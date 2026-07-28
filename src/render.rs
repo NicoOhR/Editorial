@@ -30,10 +30,12 @@ impl Article {
         re.replace_all(content, |caps: &Captures| {
             index += 1;
             format!(
-                "<label for=\"cmake\" id=\"{}\" class=\"margin-toggle sidenote-number\">
-                </label><input type=\"checkbox\" id=\"cmake\" class=\"margin-toggle\"/>
+                // Every note needs its own checkbox id — sharing one meant a
+                // label could only ever toggle the first note on the page.
+                "<label for=\"sn-{}\" id=\"{}\" class=\"margin-toggle sidenote-number\">
+                </label><input type=\"checkbox\" id=\"sn-{}\" class=\"margin-toggle\"/>
                 <span class=\"sidenote\">{}</span>",
-                index, &caps[1]
+                index, index, index, &caps[1]
             )
         })
         .to_string()
@@ -183,6 +185,23 @@ impl Article {
                         .borrow_mut()
                         .insert("id", id);
                 }
+            }
+        }
+
+        // Tag the opening paragraph. This is both the drop cap's hook and the
+        // paragraph justif is told to skip: justif pre-breaks text into atomic
+        // full-width segments, and a line box that wide can never fit beside a
+        // float, so every line would be shoved below the cap instead of
+        // wrapping around it. Skipping it falls back to native CSS justify.
+        if let Ok(mut paragraphs) = doc.select("p") {
+            if let Some(first) = paragraphs.next() {
+                first
+                    .as_node()
+                    .as_element()
+                    .unwrap()
+                    .attributes
+                    .borrow_mut()
+                    .insert("class", "dropcap".to_string());
             }
         }
 

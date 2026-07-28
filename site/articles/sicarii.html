@@ -7,9 +7,12 @@
     text-align: justify;
   }
   </style>
+  <!-- Default selector is "p, li, dd, blockquote, figcaption"; the drop-cap
+       paragraph is excluded so its lines can wrap around the floated cap. -->
   <script
     type="module"
     blocking="render"
+    data-justif-selector="p:not(.dropcap), li, dd, blockquote, figcaption"
     src="https://cdn.jsdelivr.net/npm/justif@0.4.2/dist/auto.js"
   ></script>
   <meta charset="UTF-8">
@@ -18,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Fira+Code:wght@300..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Wittgenstein:ital,wght@0,400..900;1,400..900&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400..900;1,400..900&family=Baskervville:ital@0;1&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Fira+Code:wght@300..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Wittgenstein:ital,wght@0,400..900;1,400..900&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="../tufte.css">
   <link rel="stylesheet" href="../code_highlight.css">
@@ -59,10 +62,10 @@
       display: none;
   }
   pre.code {
-      font-family: 'Monaspace Argon', monospace;
+      font-family: 'Fira Code', monospace;
       font-weight: 600;
       font-variant-ligatures: contextual;
-      font-feature-settings: "calt" 1, "liga" 1, "ss01" 1, "ss02" 1, "ss03" 1, "ss04" 1, "ss05" 1, "ss06" 1, "ss07" 1, "ss08" 1, "ss09" 1;
+      font-feature-settings: "calt" 1, "liga" 1;
       max-width: 100%;
       overflow-x: auto;
       overflow-y: hidden;
@@ -115,6 +118,46 @@
   .divider-link:hover::after {
       background-color: #800000;
   }
+  /* Code sits inside the text column, so the type carries the line density
+     instead of the width: 0.8rem ≈ 15.2px against 20.9px prose, which fits
+     roughly 72 characters in the 660px measure. Specificity note — the pair of
+     selectors is needed because tufte's `pre > code` sets a size on the inner
+     element and would otherwise win over inheritance from `pre.code`. */
+  @media (min-width: 761px) {
+      pre.code,
+      pre.code > code {
+          font-size: 0.8rem;
+      }
+  }
+  /* Mobile: trade type size and chrome for characters-per-line, and let the
+     block bleed past the text column to the edge of the screen. */
+  @media (max-width: 760px) {
+      .code-block {
+          margin: 1.1em -4.5%;   /* just shy of full bleed, so the corners read */
+          border-radius: 4px;
+      }
+      .code-block::before {
+          font-size: 0.62em;
+          padding: 0.3em 0.7em;
+          letter-spacing: 0.08em;
+      }
+      pre.code,
+      pre.code > code {
+          font-size: 0.72rem;    /* beats tufte's `pre > code` on specificity */
+          line-height: 1.35;
+      }
+      pre.code {
+          padding: 0.6em 0.7em;
+      }
+      .post-content table {
+          width: 100%;
+          font-size: 0.8em;
+      }
+      .post-content th,
+      .post-content td {
+          padding: 0.35em 0.5em;
+      }
+  }
   </style>
   <nav class="nav editorial-nav">
     <div class="nav-center">
@@ -135,7 +178,7 @@
       <article class="post-content">
         <html><head></head><body><nav class="toc"><ul>
 </ul></nav>
-<p>I always struggled with web development which for a software-guy (tm) is a bit of a personal tragedy. I have a hard time getting interested in the semantics and philosophies of different web framework, why are there so many ways to interact with the DOM? Why is the website thirsty? Still, without a personal website, what am I supposed to link to on linkedin?</p>
+<p class="dropcap">I always struggled with web development which for a software-guy (tm) is a bit of a personal tragedy. I have a hard time getting interested in the semantics and philosophies of different web framework, why are there so many ways to interact with the DOM? Why is the website thirsty? Still, without a personal website, what am I supposed to link to on linkedin?</p>
 <p>In a fit of “not made here” syndrome I figured that, all an SSG does is translate one markup language to another and push it into plain text templates, I might as well do it myself. I decided to use Rust (because I use Rust for everything at this point), with the Askama templating library.</p>
 <p>Each article is kept in its own directory with a markdown file with the contents of the article and a toml file with the metadata of the article, as well as and any other assets which it need to include.</p>
 <html><head></head><body><div class="code-block" data-lang="Rust"><pre class="hl-code code language-Rust"><code><span class="hl-source hl-rust"><span class="hl-storage hl-modifier hl-rust">pub</span> <span class="hl-meta hl-function hl-rust"><span class="hl-keyword hl-declaration hl-function hl-rust">fn</span> <span class="hl-entity hl-name hl-function hl-rust">get_articles</span></span><span class="hl-meta hl-function hl-rust"><span class="hl-meta hl-function hl-parameters hl-rust"><span class="hl-punctuation hl-section hl-parameters hl-begin hl-rust">(</span></span><span class="hl-meta hl-function hl-rust"><span class="hl-meta hl-function hl-parameters hl-rust"><span class="hl-punctuation hl-section hl-parameters hl-end hl-rust">)</span></span></span></span><span class="hl-meta hl-function hl-rust"> <span class="hl-meta hl-function hl-return-type hl-rust"><span class="hl-punctuation hl-separator hl-rust">-&gt;</span> <span class="hl-meta hl-path hl-rust"><span class="hl-variable hl-other hl-rust">io</span><span class="hl-meta hl-path hl-rust"><span class="hl-punctuation hl-accessor hl-rust">::</span></span></span><span class="hl-meta hl-path hl-rust"><span class="hl-storage hl-type hl-rust">Result</span></span><span class="hl-meta hl-generic hl-rust"><span class="hl-punctuation hl-definition hl-generic hl-begin hl-rust">&lt;</span><span class="hl-storage hl-type hl-rust">Vec</span><span class="hl-meta hl-generic hl-rust"><span class="hl-punctuation hl-definition hl-generic hl-begin hl-rust">&lt;</span><span class="hl-meta hl-path hl-rust"><span class="hl-variable hl-other hl-rust">structs</span><span class="hl-meta hl-path hl-rust"><span class="hl-punctuation hl-accessor hl-rust">::</span></span></span><span class="hl-meta hl-path hl-rust"><span class="hl-storage hl-type hl-rust">Article</span></span><span class="hl-punctuation hl-definition hl-generic hl-end hl-rust">&gt;</span></span><span class="hl-punctuation hl-definition hl-generic hl-end hl-rust">&gt;</span> </span></span><span class="hl-meta hl-function hl-rust"><span class="hl-meta hl-block hl-rust"><span class="hl-punctuation hl-section hl-block hl-begin hl-rust">{</span></span></span></span><span class="hl-meta hl-function hl-rust"><span class="hl-meta hl-block hl-rust">
@@ -205,6 +248,11 @@ a great deal of thought goes into making the end user experience as easy
 anand flexible as possible.</p>
 </body></html>
       </article>
+
+      <!-- Decorative end-of-article flourish; no alt text by design -->
+      <!-- Relative, like ../tufte.css above: an absolute /img/... breaks under
+           file:// and on Pages, which serves this repo under /Sicarii/. -->
+      <img class="dinkus" src="../img/dinkus.png" alt="" aria-hidden="true">
     </main>
   </div>
   <script>

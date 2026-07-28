@@ -1,5 +1,3 @@
-# Addenda
-
 In between part one and part two of this write up, the AST undergoes a few transformation;
 these transformations are not, in the most platonic sense, strictly necessary for a compiler. 
 It is perfectly plausible to jump from surface AST to machine code, it is also, as we say in the biz,
@@ -12,7 +10,7 @@ early so that we can break them down into constituent parts later, *desugaring* 
 *scoping* resolves human named variables to unique numeric variables, *lowering* introduces the *core* language which massively simplifies the 
 code generation process.
 
-## Special Forms
+# Special Forms
 
 The set of special forms we support is fixed at compile time and lives in an
 enum:
@@ -89,9 +87,9 @@ $$$ The goal, at least at the language design level, is to get the language down
 minimal possible representation so code generation is as simple and efficient as
 possible.
 
-## Desugaring
+# Desugaring
 
-### Let
+## Let
 **`let`** introduces a set of local bindings that are all evaluated before any
 name comes into scope. This is equivalently the behavior of a lambda which is
 invoked immediatly:
@@ -112,7 +110,7 @@ a variable $$$The stronger compilation time knowledge that `let` affords us
 also enables certain optimizations which we will not be discussing in this
 article, but are worth looking into$$$
 
-### Let Recursive
+## Let Recursive
 
 `letrec` allows us to use recursion, it's desguaring rules:
 
@@ -130,7 +128,7 @@ being evaluated, enabling mutual recursion.
 `lambda`. After `resolve_forms` the AST contains only `define`, `lambda`, `if`,
 and `set!` as special forms.
 
-## Implementations
+# Implementations
 
 ```cpp
 // parser.cpp — let
@@ -164,7 +162,7 @@ SExp Parser::create_letrec(List &list) {
 }
 ```
 
-## Scoping
+# Scoping
 
 This Lisp uses _lexical scoping_: the meaning of a name is determined by where it
 appears in the source text, not where a function happens to be called from.
@@ -192,7 +190,7 @@ The `Scoper` runs in two phases: `run` builds the tree and assigns each binding
 a unique integer ID; `resolve` replaces every string identifier in the AST with
 that integer.
 
-### Building the Scope Tree
+## Building the Scope Tree
 
 ```cpp
 // scoper.cpp
@@ -220,7 +218,7 @@ case (ast::Keyword::lambda): {
 }
 ```
 
-### Resolving Names
+## Resolving Names
 
 ```cpp
 // scoper.cpp
@@ -253,7 +251,7 @@ After this pass every `std::string` symbol in the AST has been replaced by a
 `SymbolID` which is guaranteed to be unique, two references to the same binding share the same integer 
 and the scope tree can be discarded.
 
-## Code Lowering and the Core Language
+# Code Lowering and the Core Language
 
 The AST the parser produces is still quite "surface-y", it carries all of the
 syntactic forms and still uses the `SExp` / `List` / `Symbol` vocabulary. The

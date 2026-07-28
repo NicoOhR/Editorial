@@ -7,9 +7,12 @@
     text-align: justify;
   }
   </style>
+  <!-- Default selector is "p, li, dd, blockquote, figcaption"; the drop-cap
+       paragraph is excluded so its lines can wrap around the floated cap. -->
   <script
     type="module"
     blocking="render"
+    data-justif-selector="p:not(.dropcap), li, dd, blockquote, figcaption"
     src="https://cdn.jsdelivr.net/npm/justif@0.4.2/dist/auto.js"
   ></script>
   <meta charset="UTF-8">
@@ -18,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Fira+Code:wght@300..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Wittgenstein:ital,wght@0,400..900;1,400..900&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400..900;1,400..900&family=Baskervville:ital@0;1&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Fira+Code:wght@300..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Wittgenstein:ital,wght@0,400..900;1,400..900&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="../tufte.css">
   <link rel="stylesheet" href="../code_highlight.css">
@@ -59,10 +62,10 @@
       display: none;
   }
   pre.code {
-      font-family: 'Monaspace Argon', monospace;
+      font-family: 'Fira Code', monospace;
       font-weight: 600;
       font-variant-ligatures: contextual;
-      font-feature-settings: "calt" 1, "liga" 1, "ss01" 1, "ss02" 1, "ss03" 1, "ss04" 1, "ss05" 1, "ss06" 1, "ss07" 1, "ss08" 1, "ss09" 1;
+      font-feature-settings: "calt" 1, "liga" 1;
       max-width: 100%;
       overflow-x: auto;
       overflow-y: hidden;
@@ -115,6 +118,46 @@
   .divider-link:hover::after {
       background-color: #800000;
   }
+  /* Code sits inside the text column, so the type carries the line density
+     instead of the width: 0.8rem ≈ 15.2px against 20.9px prose, which fits
+     roughly 72 characters in the 660px measure. Specificity note — the pair of
+     selectors is needed because tufte's `pre > code` sets a size on the inner
+     element and would otherwise win over inheritance from `pre.code`. */
+  @media (min-width: 761px) {
+      pre.code,
+      pre.code > code {
+          font-size: 0.8rem;
+      }
+  }
+  /* Mobile: trade type size and chrome for characters-per-line, and let the
+     block bleed past the text column to the edge of the screen. */
+  @media (max-width: 760px) {
+      .code-block {
+          margin: 1.1em -4.5%;   /* just shy of full bleed, so the corners read */
+          border-radius: 4px;
+      }
+      .code-block::before {
+          font-size: 0.62em;
+          padding: 0.3em 0.7em;
+          letter-spacing: 0.08em;
+      }
+      pre.code,
+      pre.code > code {
+          font-size: 0.72rem;    /* beats tufte's `pre > code` on specificity */
+          line-height: 1.35;
+      }
+      pre.code {
+          padding: 0.6em 0.7em;
+      }
+      .post-content table {
+          width: 100%;
+          font-size: 0.8em;
+      }
+      .post-content th,
+      .post-content td {
+          padding: 0.35em 0.5em;
+      }
+  }
   </style>
   <nav class="nav editorial-nav">
     <div class="nav-center">
@@ -155,7 +198,7 @@ window.PLOTLYENV=window.PLOTLYENV || {};                                if (docu
 </script>
 <h1 id="overview">Overview</h1>
 <h2 id="recruiter-tl-dr">Recruiter TL;DR</h2>
-<p>I implemented a multilayer perceptron, using ReLU as the activation function, in Haskell from scratch (with the exception of linear algebra operations). In the first half, I detail the mathematical grounding of neural networks, and in the second half walk through the implementation. Above you see the plot of the learned function in blue and the actual funcion in red. The resulting neural network is able to learn trigonmetric functions, logical functions (AND, XOR, OR etc.), with more yet to be tested.</p>
+<p class="dropcap">I implemented a multilayer perceptron, using ReLU as the activation function, in Haskell from scratch (with the exception of linear algebra operations). In the first half, I detail the mathematical grounding of neural networks, and in the second half walk through the implementation. Above you see the plot of the learned function in blue and the actual funcion in red. The resulting neural network is able to learn trigonmetric functions, logical functions (AND, XOR, OR etc.), with more yet to be tested.</p>
 <h2 id="wait-why">Wait, why?</h2>
 <p>It never exactly sat right with me that I have never implemented a neural
 network from scratch by myself, being a Math/CS guy (tm). Additionally as we will see Haskell is pretty
@@ -209,8 +252,8 @@ function <span class="math math-inline">h</span>.</p>
 <p><span class="math math-display">
 ||v|| = \sqrt{v_1^2 + v_2^2 + ... v_n^2}
 </span></p>
-<p>Sometimes, depending on your problem and what the output of your network is, other <em>metrics</em> should be used (for example, for probability distributions, we use the KL-divergence metric to quantify how far our network is from our function). Because we’ll do the chosen metric operation a lot, we’d like it to be computationally cheap, and while the square root operation has become close to constant time as hardware and compiler optimizations have advanced, we would still like to not do it on every iteration. We can avoid doing the square root by recognizing that, because the square function is strictly increasing for positive values<label for="cmake" id="1" class="margin-toggle sidenote-number">
-</label><input type="checkbox" id="cmake" class="margin-toggle">
+<p>Sometimes, depending on your problem and what the output of your network is, other <em>metrics</em> should be used (for example, for probability distributions, we use the KL-divergence metric to quantify how far our network is from our function). Because we’ll do the chosen metric operation a lot, we’d like it to be computationally cheap, and while the square root operation has become close to constant time as hardware and compiler optimizations have advanced, we would still like to not do it on every iteration. We can avoid doing the square root by recognizing that, because the square function is strictly increasing for positive values<label for="sn-1" id="1" class="margin-toggle sidenote-number">
+</label><input type="checkbox" id="sn-1" class="margin-toggle">
 <span class="sidenote">which a distance always will be</span> minimizing the square of the norm is exactly the same as minimizing the norm itself, so, our goals becomes:</p>
 <p><span class="math math-display">
 \operatorname*{argmin}_\theta~ ||f(x) - g(x)||^2
@@ -380,6 +423,11 @@ This is only within the context of the pure language. At the boundary of the lan
 <p>At the top of the page you can view the fruits of our labour. We pretty closely manages to converge to the desired sin function. So, whats next? There’s a lot of even the basics of neural networks we haven’t touched on yet. It would be interesting to implement the various optimizers that are industry standards now, namely AdamW and Muon. Muon especially has roots in polynomial algebra, and I wonder if Haskell will have an elegant representation of it. Once the basics are covered, I think I’ll try my hand at implementing more advanced architectures, firstly CNN, and once that’s done the sky’s the limit really. I also want to refactor the way I’m doing the forward pass to be a bit more modular in nature, kind of like PyTorch where a network is composed of several separate layers, a design decision that should have, honestly, been obvious considering that composition is one of the monads strengths. Lastly, towards the end of this project the training times did get a little prohibitive, and I think it would be really interesting to see how well Haskell can handle parallelizing code; alternatively, using a library like <code>copilot</code> which has been making waves in the embedded space for the last couple of years, we can pawn out the computationally expensive subroutines to CUDA code and only worry about high level architecture in Haskell.</p>
 </body></html>
       </article>
+
+      <!-- Decorative end-of-article flourish; no alt text by design -->
+      <!-- Relative, like ../tufte.css above: an absolute /img/... breaks under
+           file:// and on Pages, which serves this repo under /Sicarii/. -->
+      <img class="dinkus" src="../img/dinkus.png" alt="" aria-hidden="true">
     </main>
   </div>
   <script>
