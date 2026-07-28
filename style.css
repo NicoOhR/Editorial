@@ -34,7 +34,9 @@ body {
 /* —— Main wrapper for index page —— */
 main {
   max-width: 1200px;             /* Tailwind max-w-[1200px] */
-  margin: 7vh auto 0;            /* mt-[7vh] */
+  /* Sits on top of body's 7vh: gives the masthead room to breathe, but the
+     clamp keeps it from collapsing on short screens or ballooning on tall ones */
+  margin: clamp(4rem, 13vh, 9rem) auto 0;
   padding: 0 1rem;
 }
 
