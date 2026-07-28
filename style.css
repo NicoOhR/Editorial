@@ -42,11 +42,20 @@ main {
 .columns {
   display: grid;
   grid-template-columns: 1fr 2fr;
+  grid-template-rows: auto 1fr;  /* row 1: title, row 2: divider/about + articles */
   column-gap: 2.5rem;
 }
 
 /* —— Left column (index) —— */
+/* The title sits alone in row 1, so row 2 starts exactly at the divider —
+   both columns share that top edge no matter how tall the title renders. */
+.title {
+  grid-column: 1;
+  grid-row: 1;
+}
 .left-col {
+  grid-column: 1;
+  grid-row: 2;
   align-self: start;
 }
 .divider {
@@ -66,6 +75,8 @@ main {
 
 /* —— Right column (index) —— */
 .right-col {
+  grid-column: 2;
+  grid-row: 2;
 }
 .articles {
   display: flex;
