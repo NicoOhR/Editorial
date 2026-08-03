@@ -6,8 +6,8 @@ last stop of the compilation process, where we go from the last level of the
 intermediate representation to the byte code which is executed by the target.
 
 The `Generator` class holds the program, the bytecode being built, and two
-symbol tables — one for globals and one mapping local `SymbolId`s to their
-frame slot index:
+symbol tables, one for globals and one mapping local `SymbolId`s to their frame
+slot index:
 
 ```cpp
 // generator.hpp
@@ -20,11 +20,13 @@ class Generator {
 };
 ```
 
-We need to keep the little bit of state so that so that we can discern whether we need to load a global 
-or local symbol. This could have just easily been handled at the scoping step, annotating each `SymbolID`
-as either local or global.
+We maintain the global and local symbols lists so that so that we can discern
+whether we need to load a global or local symbol. This could have just easily
+been handled at the scoping step, annotating each `SymbolID` as either local or
+global.
 
-`generate()` iterates over every top-level item and appends a `HALT` at the end:
+`generate()` iterates over the top-level IR objects in the `program` and appends
+a `HALT` at the end:
 
 ```cpp
 // generator.cpp
@@ -36,7 +38,8 @@ std::vector<ISA::Instruction> Generator::generate() {
 }
 ```
 
-each `emit_` appends instructiosn before dispatching to the next `emit_` function that needs to run, which results in the following tree 
+each `emit_` appends instructions before dispatching to the next `emit_`
+function that needs to run, which results in the following tree 
 
 ```text
   generate()
@@ -79,7 +82,8 @@ each `emit_` appends instructiosn before dispatching to the next `emit_` functio
   └── [Undef]  → PUSH 0
 ```
 
-We've alreayd covered the calling convention in the VM article, so we'll explain the rest of the produced code in this article
+We've already covered the calling convention in the VM article, so we'll explain
+the rest of the produced code in this article
 
 ## Constants and Variables
 
@@ -92,7 +96,10 @@ void Generator::emit_const(const core::Const &const_var) {
 }
 ```
 
-Variables require a lookup, where we check the global and local symbols, emitting the corrosponding op code
+Variables require a lookup, first looking at the `const_builtins` and then
+checking the global then local tables to find what instruction we should emit.
+`const_builtins` just includes the nil constant which bookends lists.
+
 
 ```cpp
 // generator.cpp
@@ -114,7 +121,8 @@ void Generator::emit_var(const core::Var &variable) {
 ## Globals and Mutation
 
 A top-level `define` registers the symbol in `global_symbols` *before* emitting
-the right-hand side, which allows recursive definitions to resolve the name:
+the right-hand side, which allows recursive definitions to reference their own
+symbol.
 
 ```cpp
 // generator.cpp
@@ -141,9 +149,9 @@ void Generator::emit_set(const core::Set &set_op) {
 
 ## Conditionals
 
-`emit_cond` uses the backpatch pattern: it emits the condition, reserves a
-`CJMP` slot, emits the `otherwise` branch, reserves a `JMP` slot, then fills in
-both jump targets once it knows the sizes of each branch:
+`emit_cond` uses the backpatch pattern: it emits the condition, reserves
+a `CJMP` slot, emits the `otherwise` branch, reserves a `JMP` slot, then patches
+in both jump targets once it knows the sizes of each branch:
 
 ```cpp
 // generator.cpp
@@ -165,8 +173,8 @@ immediately after it.
 
 ## Lambdas and Closures
 
-Lambdas are the most involved case, and follow the the VMs calling convention, which we explained
-in detail
+Lambdas are the most involved case, and follow the VMs calling convention, which
+we explained in detail in the previous part.
 
 ```cpp
 // generator.cpp
@@ -205,10 +213,10 @@ void Generator::emit_lambda(const core::Lambda &lambda) {
 
 ## Function Application
 
-Built-in functions, arithmetic, comparisons, list operations are mapped
-directly to opcodes in a table keyed by `SymbolId`. When the callee resolves
-to one of them the generator emits the arguments then the opcode, with no
-`CALL`:
+Built-in functions, that is, arithmetic, comparisons, and list operations, are
+mapped directly to opcodes in a table keyed by `SymbolId`. When the callee
+resolves to one of them the generator emits the arguments then the opcode, with
+no `CALL`:
 
 ```cpp
 // generator.cpp
@@ -234,17 +242,26 @@ void Generator::emit_apply(const core::Apply &application) {
 For a user-defined function the closure handle is pushed first, then each
 argument, then `CALL` with the argument count as its operand.
 
-# Conclusion
+# Conclusion 
 
-At this point, we're done. You might have noticed how, at least compared to part 2, parts 1, 1.5, and 3 are all pretty short.
-This structure, although ad hoc, does reflect the actual complexity in every part of the project. The compilation process itself is primarily a 
-series of transformations on vaguely linguistic-ly shaped things. The actual target, the virtual machine we described and implemented at 
-part 2, required a lot more tweaking. Each constituent part of the virtual machine is mostly straight forward to implement, its the selection of which 
-parts, and clicking them together, which poses most of the complexity.There's similar amount of ways to skin either cats, the compilation cat and virtual machine cat, but we only need to taxidermy the virtual machine cat.
+At this point, we're done. You might have noticed how, at least compared to part
+2, parts 1, 1.5, and 3 are all pretty short. This structure, although ad hoc,
+does reflect the actual complexity in every part of the project. The compilation
+process itself is primarily a series of transformations on vaguely linguistic-ly
+shaped things. The actual target, the virtual machine we described and
+implemented at part 2, required a lot more tweaking. Each constituent part of
+the virtual machine is mostly straight forward to implement, its the selection
+of which parts, and clicking them together, which poses most of the
+complexity.There's similar amount of ways to skin either cats, the compilation
+cat and virtual machine cat, but we only need to taxidermy the virtual machine
+cat.
 
-As a result of pretty arduosly debugging each part of the project, the output of the current program is already usable as visualization, but I think it might be 
-neat to clean the plaintext output a little bit and present the project as a compiler-explorer like front end. Allowing users to input their own programs
-would probably require slightly nicer error reporting; which requires us to pass the position of each token along each step of the process, but also gives us nicer 
-visualizations as a gimmie.
+As a result of pretty arduously debugging each part of the project, the output
+of the current program is already usable as visualization, but I think it might
+be neat to clean the plain text output a little bit and present the project as
+a compiler-explorer like front end. Allowing users to input their own programs
+would probably require slightly nicer error reporting; which requires us to pass
+the position of each token along each step of the process, but also gives us
+nicer visualizations as a gimmie.
 
 In any case, build a compiler, you'll probably learn a thing or two.
