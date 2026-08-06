@@ -393,7 +393,8 @@ img {
   font-size: 0.7rem;
   top: -0.5rem;
   /* Maroon marker at every width, not just mobile. Lighter than the #800000
-       accent so it holds up against the dark background at this size. */
+       accent so it holds up against the dark background at this size; the
+       in-text number in label.sidenote-number is kept to the same value. */
   font-weight: 700;
   color: #a33232;
 }
@@ -476,6 +477,10 @@ input.margin-toggle {
 }
 
 label.sidenote-number {
+  /* Matches the marker on .sidenote:before — the in-text number and the number
+     heading its note are one mark in two places, so they share the lighter
+     maroon rather than the #800000 accent. */
+  color: #a33232;
   display: inline-block;
   max-height: 2rem; /* should be less than or equal to paragraph line-height */
 }
