@@ -479,8 +479,11 @@ input.margin-toggle {
 label.sidenote-number {
   /* Matches the marker on .sidenote:before — the in-text number and the number
      heading its note are one mark in two places, so they share the lighter
-     maroon rather than the #800000 accent. */
+     maroon rather than the #800000 accent. The weight matches for the same
+     reason: at 0.7rem the maroon only reads as maroon at 700, so leaving this
+     one at the inherited weight made the pair look like two different colours. */
   color: #a33232;
+  font-weight: 700;
   display: inline-block;
   max-height: 2rem; /* should be less than or equal to paragraph line-height */
 }
