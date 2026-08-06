@@ -8,11 +8,13 @@
   }
   </style>
   <!-- Default selector is "p, li, dd, blockquote, figcaption"; the drop-cap
-       paragraph is excluded so its lines can wrap around the floated cap. -->
+       paragraph is excluded so its lines can wrap around the floated cap, and
+       .has-math blocks so justif doesn't line-break them around the raw `$…$`
+       text that MathJax later replaces with narrower typeset boxes. -->
   <script
     type="module"
     blocking="render"
-    data-justif-selector="p:not(.dropcap), li, dd, blockquote, figcaption"
+    data-justif-selector="p:not(.dropcap):not(.has-math), li:not(.has-math), dd:not(.has-math), blockquote:not(.has-math), figcaption:not(.has-math)"
     src="https://cdn.jsdelivr.net/npm/justif@0.4.2/dist/auto.js"
   ></script>
   <meta charset="UTF-8">
@@ -225,7 +227,7 @@
     <span class="hl-support hl-type hl-rust">Ok</span><span class="hl-meta hl-group hl-rust"><span class="hl-punctuation hl-section hl-group hl-begin hl-rust">(</span><span class="hl-meta hl-group hl-rust"><span class="hl-punctuation hl-section hl-group hl-begin hl-rust">(</span></span><span class="hl-meta hl-group hl-rust"><span class="hl-punctuation hl-section hl-group hl-end hl-rust">)</span></span></span><span class="hl-meta hl-group hl-rust"><span class="hl-punctuation hl-section hl-group hl-end hl-rust">)</span></span>
 <span class="hl-punctuation hl-section hl-block hl-end hl-rust">}</span></span></span>
 </span></code></pre></div></body></html>
-<p>The markdown-to-html work is done by Pandoc, both because I already have all of the haskell dependencies on my machine, and it also handles <span class="math math-inline">\rm\LaTeX</span> best out of any rust markdown parsers I tried out. Code highlighting is done through <a href="https://github.com/trishume/syntect">syntect</a>, a charming library which lets you use sublime syntax definitions to highlight code. I was originaly using highlightjs, but ultimately couldn’t help but further oxidize this project.</p>
+<p class="has-math">The markdown-to-html work is done by Pandoc, both because I already have all of the haskell dependencies on my machine, and it also handles $\rm\LaTeX$ best out of any rust markdown parsers I tried out. Code highlighting is done through <a href="https://github.com/trishume/syntect">syntect</a>, a charming library which lets you use sublime syntax definitions to highlight code. I was originaly using highlightjs, but ultimately couldn’t help but further oxidize this project.</p>
 <p>The <code>markdown -&gt; pandoc -&gt; syntect-&gt; html</code> pipeline was not as smooth as I would have liked, and required a good bit of elbow grease to get to a well behaving state. In a nutshell after pandoc generated the initial HTML, I used <a href="https://github.com/brave/kuchikiki">kuchikiki</a> to find and the <code>&lt;code&gt;</code> and feed them to syntect, then replacing the original element with what syntect produces. Inevitably I think I’d like to make my own parser, since kuchikiki pulls in html5ever, which, while being a great library, adds a significant amount of additional dependencies to this project; which I feel already has too many.</p>
 <html><head></head><body><div class="code-block" data-lang="Rust"><pre class="hl-code code language-Rust"><code><span class="hl-source hl-rust">        <span class="hl-keyword hl-declaration hl-variable hl-rust">let</span> <span class="hl-variable hl-other hl-rust">doc</span> <span class="hl-keyword hl-operator hl-assignment hl-rust">=</span> <span class="hl-meta hl-path hl-rust"><span class="hl-variable hl-other hl-rust">kuchikiki</span><span class="hl-meta hl-path hl-rust"><span class="hl-punctuation hl-accessor hl-rust">::</span></span></span><span class="hl-meta hl-path hl-rust"><span class="hl-variable hl-function hl-rust">parse_html</span></span><span class="hl-meta hl-group hl-rust"><span class="hl-punctuation hl-section hl-group hl-begin hl-rust">(</span></span><span class="hl-meta hl-group hl-rust"><span class="hl-punctuation hl-section hl-group hl-end hl-rust">)</span></span><span class="hl-meta hl-path hl-rust"><span class="hl-punctuation hl-accessor hl-dot hl-rust">.</span><span class="hl-variable hl-function hl-rust">one</span></span><span class="hl-meta hl-group hl-rust"><span class="hl-punctuation hl-section hl-group hl-begin hl-rust">(</span><span class="hl-variable hl-other hl-rust">html</span></span><span class="hl-meta hl-group hl-rust"><span class="hl-punctuation hl-section hl-group hl-end hl-rust">)</span></span><span class="hl-punctuation hl-terminator hl-rust">;</span>
         <span class="hl-keyword hl-declaration hl-variable hl-rust">let</span> <span class="hl-storage hl-modifier hl-rust">mut</span> <span class="hl-variable hl-other hl-rust">matches</span><span class="hl-punctuation hl-separator hl-rust">:</span> <span class="hl-storage hl-type hl-rust">Vec</span><span class="hl-meta hl-generic hl-rust"><span class="hl-punctuation hl-definition hl-generic hl-begin hl-rust">&lt;</span><span class="hl-storage hl-type hl-inference hl-rust">_</span><span class="hl-punctuation hl-definition hl-generic hl-end hl-rust">&gt;</span> </span><span class="hl-keyword hl-operator hl-assignment hl-rust">=</span> <span class="hl-meta hl-path hl-rust"><span class="hl-variable hl-other hl-rust">doc</span><span class="hl-meta hl-path hl-rust"><span class="hl-punctuation hl-accessor hl-dot hl-rust">.</span><span class="hl-variable hl-function hl-rust">select</span></span></span><span class="hl-meta hl-group hl-rust"><span class="hl-punctuation hl-section hl-group hl-begin hl-rust">(</span><span class="hl-string hl-quoted hl-double hl-rust"><span class="hl-punctuation hl-definition hl-string hl-begin hl-rust">"</span>pre<span class="hl-punctuation hl-definition hl-string hl-end hl-rust">"</span></span></span><span class="hl-meta hl-group hl-rust"><span class="hl-punctuation hl-section hl-group hl-end hl-rust">)</span></span><span class="hl-meta hl-path hl-rust"><span class="hl-punctuation hl-accessor hl-dot hl-rust">.</span><span class="hl-variable hl-function hl-rust">unwrap</span></span><span class="hl-meta hl-group hl-rust"><span class="hl-punctuation hl-section hl-group hl-begin hl-rust">(</span></span><span class="hl-meta hl-group hl-rust"><span class="hl-punctuation hl-section hl-group hl-end hl-rust">)</span></span><span class="hl-meta hl-path hl-rust"><span class="hl-punctuation hl-accessor hl-dot hl-rust">.</span><span class="hl-variable hl-function hl-rust">collect</span></span><span class="hl-meta hl-group hl-rust"><span class="hl-punctuation hl-section hl-group hl-begin hl-rust">(</span></span><span class="hl-meta hl-group hl-rust"><span class="hl-punctuation hl-section hl-group hl-end hl-rust">)</span></span><span class="hl-punctuation hl-terminator hl-rust">;</span>
@@ -266,27 +268,14 @@ anand flexible as possible.</p>
     </main>
   </div>
   <script>
-    // pulldown-cmark emits <span class="math math-inline"> and
-    // <span class="math math-display"> with raw LaTeX but no delimiters.
-    // Inject \(...\) / \[...\] before MathJax scans the document.
+    // Math is passed through as-is with $ / $$ delimiters.
     window.MathJax = {
       loader: {load: ['[tex]/ams']},
       tex: {
         packages: {'[+]':['ams']},
-        inlineMath: [ ['\\(', '\\)'] ],
-        displayMath: [ ['\\[', '\\]'] ],
+        inlineMath: [ ['$', '$'] ],
+        displayMath: [ ['$$', '$$'] ],
       },
-      startup: {
-        ready() {
-          document.querySelectorAll('span.math.math-inline').forEach(el => {
-            el.textContent = '\\(' + el.textContent + '\\)';
-          });
-          document.querySelectorAll('span.math.math-display').forEach(el => {
-            el.textContent = '\\[' + el.textContent + '\\]';
-          });
-          MathJax.startup.defaultReady();
-        }
-      }
     };
   </script>
 <script id="MathJax-script" async

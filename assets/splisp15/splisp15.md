@@ -3,8 +3,8 @@ these transformations are not, in the most platonic sense, strictly necessary fo
 It is perfectly plausible to jump from surface AST to machine code, it is also, as we say in the biz,
 very hard. One of the compiler design tips which I think I internalized the most through this project is that 
 compilation is first and foremost a series of string manipulation passes that allow us to reason about a program
-in increasingly more primitive ways$$$I've personally taken to calling this programmatic deterritorialization,
-a term which I am sure will impress all and any compiler engineer who moonlights as a postmodern philosopher$$$. In pursuit 
+in increasingly more primitive ways!!!I've personally taken to calling this programmatic deterritorialization,
+a term which I am sure will impress all and any compiler engineer who moonlights as a postmodern philosopher!!!. In pursuit 
 of a more pure core language to compile, we introduce the following transformations: *Special forms* are primitives which we privilege
 early so that we can break them down into constituent parts later, *desugaring* is the process of breaking up some of those special forms,
 *scoping* resolves human named variables to unique numeric variables, *lowering* introduces the *core* language which massively simplifies the 
@@ -79,11 +79,11 @@ void Parser::resolve_forms(SExp &sexp, bool is_top_level) {
 
 `define` and `lambda` are validated and left as-is in the tree. `let` and
 `letrec` are desugared, rewritten into equivalent combinations of `lambda` and
-`set!`.$$$
+`set!`.!!!
 The term "desugaring" comes from referring to certain language features as "syntactic sugar", these are
 parts of the language which do not contribute to the overall expressive power of
 the language, but make it easier to program in the language
-$$$ The goal, at least at the language design level, is to get the language down to
+!!! The goal, at least at the language design level, is to get the language down to
 minimal possible representation so code generation is as simple and efficient as
 possible.
 
@@ -106,9 +106,9 @@ that the program is using them as variables `x` and `y`, in that way, they have
 no ability to refer to themselves in their own definitions, which is an important 
 restriction of `let` which the above desugar gives us for free. `let` does not
 allow for recursion, but clearly encodes the scope and availability of
-a variable $$$The stronger compilation time knowledge that `let` affords us
+a variable !!!The stronger compilation time knowledge that `let` affords us
 also enables certain optimizations which we will not be discussing in this
-article, but are worth looking into$$$
+article, but are worth looking into!!!
 
 ## Let Recursive
 

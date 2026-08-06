@@ -25,7 +25,7 @@ impl Article {
         Self::resolve_sidebars(&mut content)
     }
     pub fn resolve_sidebars(content: &mut String) -> String {
-        let re = Regex::new(r"\$\$\$([\s\S]*?)\$\$\$").unwrap();
+        let re = Regex::new(r"!!!([\s\S]*?)!!!").unwrap();
         let mut index = 0;
         re.replace_all(content, |caps: &Captures| {
             index += 1;
@@ -93,9 +93,30 @@ impl Article {
         html
     }
 
+    /// Whether a block carries a MathJax formula, i.e. a `$` pair outside of
+    /// any code span — a lone `$`, or the Haskell `$` operator in backticks,
+    /// is prose and stays justified.
+    fn has_math(node: &kuchikiki::NodeRef) -> bool {
+        let mut dollars = 0;
+        for descendant in node.inclusive_descendants() {
+            let Some(text) = descendant.as_text() else {
+                continue;
+            };
+            let in_code = descendant.ancestors().any(|ancestor| {
+                ancestor
+                    .as_element()
+                    .is_some_and(|el| matches!(el.name.local.as_ref(), "code" | "pre"))
+            });
+            if !in_code {
+                dollars += text.borrow().matches('$').count();
+            }
+        }
+        dollars >= 2
+    }
+
     pub fn create_template(&self) -> io::Result<EditorialTemplate> {
         let text = self.resolve_content();
-        let options = Options::all();
+        let options = Options::all() - Options::ENABLE_MATH;
         let mut html = Self::create_toc(pulldown_cmark::Parser::new_ext(&text, options));
         pulldown_cmark::html::push_html(&mut html, pulldown_cmark::Parser::new_ext(&text, options));
 
@@ -202,6 +223,30 @@ impl Article {
                     .attributes
                     .borrow_mut()
                     .insert("class", "dropcap".to_string());
+            }
+        }
+
+        // Same idea for blocks holding math: justif measures the literal `$…$`
+        // source and breaks the block into fixed lines, then MathJax — async,
+        // off the CDN, so always later — swaps each formula for a narrower
+        // <mjx-container>. The pre-measured lines never reflow, so exactly the
+        // ones carrying math end short of the margin. Native CSS justify
+        // re-justifies after the swap, so hand these blocks back to it.
+        for selector in &["p", "li", "dd", "blockquote", "figcaption"] {
+            if let Ok(blocks) = doc.select(selector) {
+                for block in blocks.collect::<Vec<_>>() {
+                    let node = block.as_node();
+                    if !Self::has_math(node) {
+                        continue;
+                    }
+                    let element = node.as_element().unwrap();
+                    let mut attributes = element.attributes.borrow_mut();
+                    let class = match attributes.get("class") {
+                        Some(existing) => format!("{} has-math", existing),
+                        None => "has-math".to_string(),
+                    };
+                    attributes.insert("class", class);
+                }
             }
         }
 

@@ -69,7 +69,7 @@ The virtual machine is built of the following components
   in itself a form of dynamic memory similar to heap
 
 This is, largely, isomorphic to an SECD
-machine$$$the original SECD machine did not support global variables, but later extensions did. If you do not know what SECD machine is, it's not necessary to understanding the rest of the article, but is a very interesting piece of programming history$$$
+machine!!!the original SECD machine did not support global variables, but later extensions did. If you do not know what SECD machine is, it's not necessary to understanding the rest of the article, but is a very interesting piece of programming history!!!
 but the general philosophy and code generation strategy are different enough as
 to be worth treating this machine as a separate entity.
 
@@ -101,7 +101,7 @@ using HeapObject = std::variant<Pair, CodeEnv>;
 
 `Cell` is an almost self explanatory single memory unit, it contains one signed,
 64 bit integer value, a function pair and null
-flag$$$ If, and this is not out of the question, I end up designing something in verilog to model this system, I will probably end up cutting into the most significant bits of the integer to represent the flags$$$.
+flag!!! If, and this is not out of the question, I end up designing something in verilog to model this system, I will probably end up cutting into the most significant bits of the integer to represent the flags!!!.
 The `CodeEnv` struct represents the code environment that a lambda runs in, it's
 necessary for this to be a heap structure, that is, to have a dynamic lifetime,
 because the lambda could be called past the lifetime of the variables that it
@@ -122,7 +122,7 @@ the virtual machine. A lot of these are likely familiar, so we'll be skipping
 the arithmetic, logic, and transfer opcodes to focus on the control and list
 instructions in the next section, where we detail how variables are handled, and
 then the calling
-convention$$$ I am certain that I will eventually, probably after this particular write up, get around to writing  more cohesive documentation $$$.
+convention!!! I am certain that I will eventually, probably after this particular write up, get around to writing  more cohesive documentation !!!.
 
 ## Arithmetic Operations
 
@@ -237,9 +237,9 @@ arguments passed to it by the callee, and the variables that it references in
 its body, formals and captured variables respectively. To achieve this, we
 should tell the VM where those start, which we do by setting `frame_base`, and
 allowing the closure to interact with it's local variables _only in reference to
-that frame base_.$$$This is, by the way, the same for most ISAs, when we talk about
+that frame base_.!!!This is, by the way, the same for most ISAs, when we talk about
 "stack" allocation, we're really just talking about a contiguous region of memory with
-a pointer to the top which grows in one direction, which we use in a LIFO fashion$$$
+a pointer to the top which grows in one direction, which we use in a LIFO fashion!!!
 
 But when that called closure has concluded, and the result lies on top of the
 stack, the callee, which might be a closure in and of it self, could still need to

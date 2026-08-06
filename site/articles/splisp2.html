@@ -8,11 +8,13 @@
   }
   </style>
   <!-- Default selector is "p, li, dd, blockquote, figcaption"; the drop-cap
-       paragraph is excluded so its lines can wrap around the floated cap. -->
+       paragraph is excluded so its lines can wrap around the floated cap, and
+       .has-math blocks so justif doesn't line-break them around the raw `$…$`
+       text that MathJax later replaces with narrower typeset boxes. -->
   <script
     type="module"
     blocking="render"
-    data-justif-selector="p:not(.dropcap), li, dd, blockquote, figcaption"
+    data-justif-selector="p:not(.dropcap):not(.has-math), li:not(.has-math), dd:not(.has-math), blockquote:not(.has-math), figcaption:not(.has-math)"
     src="https://cdn.jsdelivr.net/npm/justif@0.4.2/dist/auto.js"
   ></script>
   <meta charset="UTF-8">
@@ -555,19 +557,19 @@ pc=63   op=RET          stack=[4]
 pc=117  op=HALT         stack=[4]
 </span></code></pre></div></body></html>
 <ul>
-<li>First we <code>JMP</code> past the function body to <code>pc = 72</code>, where we make the closure,
-since this function only takes <span class="math math-inline">1</span> argument and doesn’t close over anything,
+<li class="has-math">First we <code>JMP</code> past the function body to <code>pc = 72</code>, where we make the closure,
+since this function only takes $1$ argument and doesn’t close over anything,
 it’s <code>CodeEnv.captured_vars</code> is empty.</li>
-<li>Then we <code>MKGLOBAL 15</code>, that is, we take the value on the top of the stack,
+<li class="has-math">Then we <code>MKGLOBAL 15</code>, that is, we take the value on the top of the stack,
 which right now is the closure handler, and add it to the heap with global
-name <span class="math math-inline">15</span>. Now we can call this function from anywhere else in the code</li>
-<li>Then we add the function argument, in this case <span class="math math-inline">3</span>, and <code>CALL 1</code>, the operand
+name $15$. Now we can call this function from anywhere else in the code</li>
+<li class="has-math">Then we add the function argument, in this case $3$, and <code>CALL 1</code>, the operand
 to the <code>CALL</code> instruction tells it how far down in the stack the function
 we’re calling is. So we take that global variable, look inside and find a
 <code>CodeEnv</code> with <code>code_idx = 9</code></li>
-<li>We follow that and pull <code>GET_LOCAL 0</code> intothe stack, which is the first
-argument to the function, then push <span class="math math-inline">1</span>, and <code>ADD</code>. Then we clean up the
-argument that was passed to the function, leaving only the <span class="math math-inline">4</span> on top, as
+<li class="has-math">We follow that and pull <code>GET_LOCAL 0</code> intothe stack, which is the first
+argument to the function, then push $1$, and <code>ADD</code>. Then we clean up the
+argument that was passed to the function, leaving only the $4$ on top, as
 desired.</li>
 </ul>
 <h2 id="tree-operations">Tree Operations</h2>
@@ -647,27 +649,14 @@ ironically the one I had to spend the least time on to get to an MVP.</p>
     </main>
   </div>
   <script>
-    // pulldown-cmark emits <span class="math math-inline"> and
-    // <span class="math math-display"> with raw LaTeX but no delimiters.
-    // Inject \(...\) / \[...\] before MathJax scans the document.
+    // Math is passed through as-is with $ / $$ delimiters.
     window.MathJax = {
       loader: {load: ['[tex]/ams']},
       tex: {
         packages: {'[+]':['ams']},
-        inlineMath: [ ['\\(', '\\)'] ],
-        displayMath: [ ['\\[', '\\]'] ],
+        inlineMath: [ ['$', '$'] ],
+        displayMath: [ ['$$', '$$'] ],
       },
-      startup: {
-        ready() {
-          document.querySelectorAll('span.math.math-inline').forEach(el => {
-            el.textContent = '\\(' + el.textContent + '\\)';
-          });
-          document.querySelectorAll('span.math.math-display').forEach(el => {
-            el.textContent = '\\[' + el.textContent + '\\]';
-          });
-          MathJax.startup.defaultReady();
-        }
-      }
     };
   </script>
 <script id="MathJax-script" async

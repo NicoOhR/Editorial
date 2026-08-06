@@ -2,8 +2,8 @@
 
 ## History
 
-A polemic $$$Pronounced peh-lem-ick, not pole-mick, which should hopefully save
-you a similar sort of embarrassment that I had suffered $$$ is an argument which
+A polemic !!!Pronounced peh-lem-ick, not pole-mick, which should hopefully save
+you a similar sort of embarrassment that I had suffered !!! is an argument which
 as directly as possible, makes claims to support ones own position and undermine
 an opposing one. The word describes more a stylistic decision than a specific
 form of rhetoric. It's aggressive and, as per the etymology, warlike. The style
@@ -22,10 +22,10 @@ As a personal motivation, I spend a great deal of time on the internet and a
 great deal of that time is spent doing something approximating software
 engineering. I think it is important to understand the culture one is immersed
 in, and if that culture presents itself primarily as blogs, email chains, and
-comments on hacker news, then we should engage it as such. $$$ Frankly, I'm just
+comments on hacker news, then we should engage it as such. !!! Frankly, I'm just
 interested in people, and I would like others to at least understand a genre of
 rhetoric I spend a lot of time engaging with. In this way, this is apologia of
-the programmer polemical $$$
+the programmer polemical !!!
 
 As for why _you_ should care: for better or for worse, the professional culture
 of the yuppie silicon valley tech-penuer has become the culture of one of the
@@ -59,8 +59,8 @@ and hardware engineering and the practice thereof. The article needs to be about
 _making_ the technology, the details of the implementation, and more to the
 point how technology _should_ be made, and not about the _technology itself_ or
 how it should be used. These are articles written almost exclusively _for other
-programmers_.$$$I will be prefixing various nouns as _programmer_-X when I am
-trying to convy this character, a la, _gentleman-historian_$$$
+programmers_.!!!I will be prefixing various nouns as _programmer_-X when I am
+trying to convy this character, a la, _gentleman-historian_!!!
 
 This immediately eliminates a lot of the rationalist milieu, the LessWrong, MIRI
 crowd, who frankly deserve their own investigation. They're a fascinating group
