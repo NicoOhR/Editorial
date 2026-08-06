@@ -8,11 +8,13 @@
   }
   </style>
   <!-- Default selector is "p, li, dd, blockquote, figcaption"; the drop-cap
-       paragraph is excluded so its lines can wrap around the floated cap. -->
+       paragraph is excluded so its lines can wrap around the floated cap, and
+       .has-math blocks so justif doesn't line-break them around the raw `$…$`
+       text that MathJax later replaces with narrower typeset boxes. -->
   <script
     type="module"
     blocking="render"
-    data-justif-selector="p:not(.dropcap), li, dd, blockquote, figcaption"
+    data-justif-selector="p:not(.dropcap):not(.has-math), li:not(.has-math), dd:not(.has-math), blockquote:not(.has-math), figcaption:not(.has-math)"
     src="https://cdn.jsdelivr.net/npm/justif@0.4.2/dist/auto.js"
   ></script>
   <meta charset="UTF-8">
@@ -295,27 +297,14 @@ maybe spend a weekend cobbeling together a front end exhibition for this.</p>
     </main>
   </div>
   <script>
-    // pulldown-cmark emits <span class="math math-inline"> and
-    // <span class="math math-display"> with raw LaTeX but no delimiters.
-    // Inject \(...\) / \[...\] before MathJax scans the document.
+    // Math is passed through as-is with $ / $$ delimiters.
     window.MathJax = {
       loader: {load: ['[tex]/ams']},
       tex: {
         packages: {'[+]':['ams']},
-        inlineMath: [ ['\\(', '\\)'] ],
-        displayMath: [ ['\\[', '\\]'] ],
+        inlineMath: [ ['$', '$'] ],
+        displayMath: [ ['$$', '$$'] ],
       },
-      startup: {
-        ready() {
-          document.querySelectorAll('span.math.math-inline').forEach(el => {
-            el.textContent = '\\(' + el.textContent + '\\)';
-          });
-          document.querySelectorAll('span.math.math-display').forEach(el => {
-            el.textContent = '\\[' + el.textContent + '\\]';
-          });
-          MathJax.startup.defaultReady();
-        }
-      }
     };
   </script>
 <script id="MathJax-script" async

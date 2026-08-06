@@ -8,11 +8,13 @@
   }
   </style>
   <!-- Default selector is "p, li, dd, blockquote, figcaption"; the drop-cap
-       paragraph is excluded so its lines can wrap around the floated cap. -->
+       paragraph is excluded so its lines can wrap around the floated cap, and
+       .has-math blocks so justif doesn't line-break them around the raw `$…$`
+       text that MathJax later replaces with narrower typeset boxes. -->
   <script
     type="module"
     blocking="render"
-    data-justif-selector="p:not(.dropcap), li, dd, blockquote, figcaption"
+    data-justif-selector="p:not(.dropcap):not(.has-math), li:not(.has-math), dd:not(.has-math), blockquote:not(.has-math), figcaption:not(.has-math)"
     src="https://cdn.jsdelivr.net/npm/justif@0.4.2/dist/auto.js"
   ></script>
   <meta charset="UTF-8">
@@ -208,130 +210,205 @@ window.PLOTLYENV=window.PLOTLYENV || {};                                if (docu
 </script>
 <h1 id="overview">Overview</h1>
 <h2 id="recruiter-tl-dr">Recruiter TL;DR</h2>
-<p class="dropcap">I implemented a multilayer perceptron, using ReLU as the activation function, in Haskell from scratch (with the exception of linear algebra operations). In the first half, I detail the mathematical grounding of neural networks, and in the second half walk through the implementation. Above you see the plot of the learned function in blue and the actual funcion in red. The resulting neural network is able to learn trigonmetric functions, logical functions (AND, XOR, OR etc.), with more yet to be tested.</p>
+<p class="dropcap">I implemented a multilayer perceptron, using ReLU as the activation function, in
+Haskell from scratch (with the exception of linear algebra operations). In the
+first half, I detail the mathematical grounding of neural networks, and in the
+second half walk through the implementation. Above you see the plot of the
+learned function in blue and the actual function in red. The resulting neural
+network is able to learn trigonometric functions, logical functions (AND, XOR,
+OR etc.), with more yet to be tested.</p>
 <h2 id="wait-why">Wait, why?</h2>
 <p>It never exactly sat right with me that I have never implemented a neural
-network from scratch by myself, being a Math/CS guy (tm). Additionally as we will see Haskell is pretty
-awesome for linear algebra stuff, so I figured it would be
-fun to go through the implementation of a neural network in Haskell. This article
-assumes no knowledge of Haskell or machine learning, but does require some
-knowledge in calculus and linear algebra, and that you are familiar with <em>a</em> programming language. I hope to achieve two things in
-this article, firstly I want to demonstrate that the basic primitive of
-the machine learning field, the neural network, is really not that
-complicated or hard to get your head around, and secondly I would like to
-answer the decently common question “why use Haskell?”.</p>
+network from scratch by myself, being a Math/CS guy (tm). Additionally as we
+will see Haskell is pretty awesome for linear algebra stuff, so I figured it
+would be fun to go through the implementation of a neural network in Haskell.
+This article assumes no knowledge of Haskell or machine learning, but does
+require some knowledge in calculus and linear algebra, and that you are familiar
+with <em>a</em> programming language. I hope to achieve two things in this article,
+firstly I want to demonstrate that the basic primitive of the machine learning
+field, the neural network, is really not that complicated or hard to get your
+head around, and secondly I would like to answer the decently common question
+“why use Haskell?”.</p>
 <h1 id="the-mathematics">The Mathematics</h1>
 <h2 id="setting-up">Setting Up</h2>
-<p>First, let’s try to appreciate what it is exactly that we are building.
-Put into a sentence, a neural network is just <em>“the composition of linear
-transformations and non-linear functions”</em> and we typically tack on
-<em>“which approximates a continuous function in <span class="math math-inline">\mathbb{R}^n</span> “</em> implicitly.
-Let’s try to tackle each part of this definition, I’ll keep it brief, and
-will try to add resources for anyone who wants to read more</p>
+<p class="has-math">First, let’s try to appreciate what it is exactly that we are building. Put into
+a sentence, a neural network is just <em>“the composition of linear transformations
+and non-linear functions”</em> and we typically tack on <em>“which approximates a
+continuous function in $\mathbb{R}^n$ “</em> implicitly. Let’s try to tackle each
+part of this definition, I’ll keep it brief, and will try to add resources for
+anyone who wants to read more</p>
 <ul>
-<li>A <em>linear transformation</em> is any transformation which transforms objects
-in a globally consistent manner. For our purposes, that means that how much
-input <span class="math math-inline">x</span> is transformed by linear transformation <span class="math math-inline">W</span> does not depend on
-<span class="math math-inline">x</span> at all. In addition, we can add another vector after the
-transformation while maintaining linearity, for a reason that we’ll get to
-in a minute, this is very useful.</li>
-<li>A <em>non-linear function</em> is all other transformation, that is, non-linear
-function <span class="math math-inline">f</span> transforms <span class="math math-inline">x</span> by different amounts depending on the specific value of
-<span class="math math-inline">x</span></li>
-<li>A <em>continuous function in</em> <span class="math math-inline">\mathbb{R}^n</span> is a vector valued function
-where a small variation of the input will lead to a similarly small
-variation in the output. The exact details of continuity are not strictly
-necessary to understand, and while I encourage everyone to suffer through
-analysis as I have, we’ll just move on for now.</li>
+<li class="has-math">A <em>linear transformation</em> is any transformation which transforms objects in a
+globally consistent manner. For our purposes, that means that how much input
+$x$ is transformed by linear transformation $W$ does not depend on $x$ at all.
+In addition, we can add another vector after the transformation while
+maintaining linearity, for a reason that we’ll get to in a minute, this is
+very useful.</li>
+<li class="has-math">A <em>non-linear function</em> is all other transformation, that is, non-linear
+function $f$ transforms $x$ by different amounts depending on the specific
+value of $x$</li>
+<li class="has-math">A <em>continuous function in</em> $\mathbb{R}^n$ is a vector valued function where a
+small variation of the input will lead to a similarly small variation in the
+output. The exact details of continuity are not strictly necessary to
+understand, and while I encourage everyone to suffer through analysis as I
+have, we’ll just move on for now.</li>
 </ul>
-<p>Taken together, the neural network <span class="math math-inline">g</span> which takes as input <span class="math math-inline">x</span> which is
-a vector in <span class="math math-inline">\mathbb{R}^m</span> and produces <span class="math math-inline">y</span> which is a vector in
-<span class="math math-inline">\mathbb{R}^n</span>, with non-linear function <span class="math math-inline">f</span>, and linear transformations
-<span class="math math-inline">W^1, W^2,...W^L</span> and vectors <span class="math math-inline">b^1, b^2,... b^L</span> is expressed as</p>
-<p><span class="math math-display"> g(x) = f(W^L(f(W^{L-1}f(...f(W^1x + b^1)))+b^{L-1})+b^L) </span></p>
-<p>With the correct values of <span class="math math-inline">W^i</span> and <span class="math math-inline">b^i</span>, together referred to as the
-parameters of the neural network, and denoted as <span class="math math-inline">theta</span> (I pinky promise
-this will probably be the only Greek letter we use) we can approximate any
-function <span class="math math-inline">h</span>.</p>
+<p class="has-math">Taken together, the neural network $g$ which takes as input $x$ which is a
+vector in $\mathbb{R}^m$ and produces $y$ which is a vector in $\mathbb{R}^n$,
+with non-linear function $f$, and linear transformations $W^1, W^2,…W^L$ and
+vectors $b^1, b^2,… b^L$ is expressed as</p>
+<p class="has-math">$$ g(x) = f(W^L(f(W^{L-1}f(…f(W^1x + b^1)))+b^{L-1})+b^L) $$</p>
+<p class="has-math">With the correct values of $W^i$ and $b^i$, together referred to as the
+parameters of the neural network, and denoted as $theta$ (I pinky promise this
+will probably be the only Greek letter we use) we can approximate any function
+$h$.</p>
 <h2 id="finding-the-parameters">Finding the Parameters</h2>
-<p>In optimization, we generally like thinking about minimization problems rather than maximization problems, more by convention than by any other reason. In this case we’re trying to find the parameters which are <em>least wrong</em> which is the same as the parameters that are <em>most right</em>. This is expressed notationally as</p>
-<p><span class="math math-display">
-\operatorname*{argmin}_\theta ||f(x) - g\_{\theta}(x)||
-</span></p>
-<p>And is read as “find <span class="math math-inline">theta</span> such that the difference between the function <span class="math math-inline">f</span> and the function parameterized by <span class="math math-inline">\theta</span>, <span class="math math-inline">g</span>, is minimized”. In this case, we can use the standard euclidean norm to compute the difference between our functions:</p>
-<p><span class="math math-display">
-||v|| = \sqrt{v_1^2 + v_2^2 + ... v_n^2}
-</span></p>
-<p>Sometimes, depending on your problem and what the output of your network is, other <em>metrics</em> should be used (for example, for probability distributions, we use the KL-divergence metric to quantify how far our network is from our function). Because we’ll do the chosen metric operation a lot, we’d like it to be computationally cheap, and while the square root operation has become close to constant time as hardware and compiler optimizations have advanced, we would still like to not do it on every iteration. We can avoid doing the square root by recognizing that, because the square function is strictly increasing for positive values<label for="sn-1" id="1" class="margin-toggle sidenote-number">
+<p>In optimization, we generally like thinking about minimization problems rather
+than maximization problems, more by convention than by any other reason. In this
+case we’re trying to find the parameters which are <em>least wrong</em> which is the
+same as the parameters that are <em>most right</em>. This is expressed notationally as</p>
+<p class="has-math">$$ \operatorname*{argmin}_\theta ||f(x) - g_{\theta}(x)|| $$</p>
+<p class="has-math">And is read as “find $theta$ such that the difference between the function $f$
+and the function parameterized by $\theta$, $g$, is minimized”. In this case, we
+can use the standard euclidean norm to compute the difference between our
+functions:</p>
+<p class="has-math">$$ ||v|| = \sqrt{v_1^2 + v_2^2 + … v_n^2} $$</p>
+<p>Sometimes, depending on your problem and what the output of your network is,
+other <em>metrics</em> should be used (for example, for probability distributions, we
+use the KL-divergence metric to quantify how far our network is from our
+function). Because we’ll do the chosen metric operation a lot, we’d like it to
+be computationally cheap, and while the square root operation has become close
+to constant time as hardware and compiler optimizations have advanced, we would
+still like to not do it on every iteration. We can avoid doing the square root
+by recognizing that, because the square function is strictly increasing for
+positive values<label for="sn-1" id="1" class="margin-toggle sidenote-number">
 </label><input type="checkbox" id="sn-1" class="margin-toggle">
-<span class="sidenote">which a distance always will be</span> minimizing the square of the norm is exactly the same as minimizing the norm itself, so, our goals becomes:</p>
-<p><span class="math math-display">
-\operatorname*{argmin}_\theta~ ||f(x) - g(x)||^2
-</span></p>
+<span class="sidenote">which a distance always will be</span> minimizing the square of
+the norm is exactly the same as minimizing the norm itself, so, our goals
+becomes:</p>
+<p class="has-math">$$ \operatorname*{argmin}_\theta~ ||f(x) - g(x)||^2 $$</p>
 <p>Or more explicitly</p>
-<p><span class="math math-display">
-\operatorname*{argmin}_\theta~ (f(x)_1 - g(x)_1)^2+(f(x)_2-g(x)_2)^2+...(f(x)_n - g(x)_n)^2
-</span></p>
-<p>We call the measure of how “wrong” our network is the cost function (also loss, depending on whose writing the paper) and we denote it by <span class="math math-inline">C</span>. Cost is parameterized by both <span class="math math-inline">\theta</span> and <span class="math math-inline">x</span>. Now that we’ve stated the goal, how do we find it? Here we introduce the gradient, which is, for a vector valued function <span class="math math-inline">f: \mathbb{R}^n \to \mathbb{R}</span> defined as</p>
-<p><span class="math math-display">
-\nabla f(\mathbf{x}) =
-\begin{pmatrix}
-\frac{\partial f}{\partial x_1}(\mathbf{x}) \\
-\frac{\partial f}{\partial x_2}(\mathbf{x}) \\
-\vdots \\
-\frac{\partial f}{\partial x_n}(\mathbf{x})
-\end{pmatrix}
-</span></p>
-<p>I’ll ask you to take the following on axiom, the gradient of <span class="math math-inline">f</span>, <span class="math math-inline">\nabla f</span> evaluated at <span class="math math-inline">x</span> is the direction of fastest change positive change, and <span class="math math-inline">-\nabla f</span> is the direction of fastest negative change. When (read, if) I find the time to figure out javascript widgets, there will be a nice interactive diagram showing, geometrically, why this is the case. So if we follow the negative gradient of the cost function at every point, we’ll eventually find <em>a</em> minimum! Importantly, this is not the global minimum, only a local minimum, where moving a little bit in any direction would increase the function.</p>
-<p>So to find the locally optimal <span class="math math-inline">\theta</span>, we find the negative gradient of the cost function, with respect to <span class="math math-inline">\theta</span> for each <span class="math math-inline">x</span> in our data set, and move along the direction of the gradient. There are really quite a lot of addenda and technicalities that we’re glossing over with this coarse treatment. We’re working fast here, and a more rigorous treatment which I suspect most people interested in machine learning have already read can be found <a href="http://neuralnetworksanddeeplearning.com/index.html">here</a> , written by Michael Nielsen. Since I rather poorly timed this project with finals season, I will be skipping the derivation of back propagation for the time being. Taken from the link above, the governing equations we need to calculate how much we need to change our parameters by is given as:</p>
-<p><span class="math math-display">
-\begin{aligned}
-\delta^L &amp;= \nabla_a C \odot \sigma'(z^L) \\\\
-\delta^l &amp;= ((W^{l+1})^T\delta^{l+1}) \odot \sigma'(z^l) \\\\
-\frac{\partial C}{\partial b^l_j} &amp;= \delta^l_j \\\\
-\frac{\partial C}{\partial w_{j,k}^l} &amp;= a_l^{l-1}\delta_j^l
-\end{aligned}
-</span></p>
-<p>Where <span class="math math-inline">z^l</span> is the output of the <span class="math math-inline">l</span>-th layer prior to going through the activation function <span class="math math-inline">\sigma</span>, and <span class="math math-inline">a^l</span> is the result of passing <span class="math math-inline">z^l</span> though the activation function.</p>
+<p class="has-math">$$ \operatorname*{argmin}_\theta~ (f(x)_1
+-g(x)_1)^2+(f(x)_2-g(x)_2)^2+…(f(x)_n - g(x)_n)^2 $$</p>
+<p class="has-math">We call the measure of how “wrong” our network is the cost function (also loss,
+depending on whose writing the paper) and we denote it by $C$. Cost is
+parameterized by both $\theta$ and $x$. Now that we’ve stated the goal, how do
+we find it? Here we introduce the gradient, which is, for a vector valued
+function $f: \mathbb{R}^n \to \mathbb{R}$ defined as</p>
+<p class="has-math">$$ \nabla f(\mathbf{x}) = \begin{pmatrix} \frac{\partial f}{\partial
+x_1}(\mathbf{x}) \ \frac{\partial f}{\partial x_2}(\mathbf{x}) \ \vdots \
+\frac{\partial f}{\partial x_n}(\mathbf{x}) \end{pmatrix} $$</p>
+<p class="has-math">I’ll ask you to take the following on axiom, the gradient of $f$, $\nabla f$
+evaluated at $x$ is the direction of fastest change positive change, and
+$-\nabla f$ is the direction of fastest negative change. When (read, if) I find
+the time to figure out JavaScript widgets, there will be a nice interactive
+diagram showing, geometrically, why this is the case. So if we follow the
+negative gradient of the cost function at every point, we’ll eventually find <em>a</em>
+minimum! Importantly, this is not the global minimum, only a local minimum,
+where moving a little bit in any direction would increase the function.</p>
+<p class="has-math">So to find the locally optimal $\theta$, we find the negative gradient of the
+cost function, with respect to $\theta$ for each $x$ in our data set, and move
+along the direction of the gradient. There are really quite a lot of addenda and
+technicalities that we’re glossing over with this coarse treatment. We’re
+working fast here, and a more rigorous treatment which I suspect most people
+interested in machine learning have already read can be found
+<a href="http://neuralnetworksanddeeplearning.com/index.html">here</a> , written by Michael
+Nielsen. Since I rather poorly timed this project with finals season, I will be
+skipping the derivation of back propagation for the time being. Taken from the
+link above, the governing equations we need to calculate how much we need to
+change our parameters by is given as:</p>
+<p class="has-math">$$ \begin{aligned} \delta^L &amp;= \nabla_a C \odot \sigma’(z^L) \ \delta^l
+&amp;= ((W^{l+1})<sup>T\delta</sup>{l+1}) \odot \sigma’(z^l) \ \frac{\partial
+C}{\partial b^l_j} &amp;= \delta^l_j \ \frac{\partial C}{\partial
+w_{j,k}<sup>l} &amp;= a_l</sup>{l-1}\delta_j^l \end{aligned} $$</p>
+<p class="has-math">Where $z^l$ is the output of the $l$-th layer prior to going through the
+activation function $\sigma$, and $a^l$ is the result of passing $z^l$ though
+the activation function.</p>
 <h1 id="the-implementation">The Implementation</h1>
 <h2 id="haskell-my-sweet-prince-³">Haskell my sweet prince ( ˘ ³˘)♥</h2>
-<p>If you’ve never seen functional programming before some of this might be
-an adjustment, but give me more time than its probably worth and I promise
-you’ll be more confused than when we started. Snark aside, one of my
-favorite aspects of functional programming is that once you have a good
-representation of your data, you’ve made some pretty decent progress
-towards solving your problem.</p>
-<p>So far, we have a non-linear function, which we call an <em>activation
-function</em> and we have our parameters.</p>
+<p>If you’ve never seen functional programming before some of this might be an
+adjustment, but give me more time than its probably worth and I promise you’ll
+be more confused than when we started. Snark aside, one of my favorite aspects
+of functional programming is that once you have a good representation of your
+data, you’ve made some pretty decent progress towards solving your problem.</p>
+<p>So far, we have a non-linear function, which we call an <em>activation function</em>
+and we have our parameters.</p>
 <html><head></head><body><div class="code-block" data-lang="Haskell"><pre class="hl-code code language-Haskell"><code><span class="hl-source hl-haskell"><span class="hl-meta hl-declaration hl-data hl-haskell"><span class="hl-keyword hl-declaration hl-data hl-haskell">data</span></span> <span class="hl-storage hl-type hl-haskell">Theta</span> <span class="hl-keyword hl-operator hl-haskell">=</span> <span class="hl-storage hl-type hl-haskell">Theta</span> [(<span class="hl-storage hl-type hl-haskell">Matrix</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span><span class="hl-punctuation hl-separator hl-sequence hl-haskell">,</span> <span class="hl-storage hl-type hl-haskell">Vector</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span>)] <span class="hl-meta hl-declaration hl-deriving hl-haskell"><span class="hl-storage hl-modifier hl-haskell">deriving</span> <span class="hl-meta hl-sequence hl-tuple hl-haskell"><span class="hl-punctuation hl-section hl-sequence hl-begin hl-haskell">(</span><span class="hl-support hl-class hl-prelude hl-haskell">Show</span><span class="hl-punctuation hl-section hl-sequence hl-end hl-haskell">)</span></span></span>
 
 <span class="hl-meta hl-declaration hl-type hl-haskell"><span class="hl-keyword hl-declaration hl-type hl-haskell">type</span></span> <span class="hl-storage hl-type hl-haskell">Activation</span> <span class="hl-keyword hl-operator hl-haskell">=</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span>
 </span></code></pre></div></body></html>
-<p><code>data</code> is how we define a new type in Haskell, the <code>Theta</code> on the
-other side of the definition is the data constructor of this type. While
-not strictly necessary, I like using data constructors as a sort of built
-in label for parameters which is helpful if you’re, like me, bad about
-naming your variables. <code>[(Matrix Double, Vector Double)]</code> means that
-this is a list of the tuple of a matrix of doubles, and a vector of
-doubles, our <span class="math math-inline">W^i</span> and <span class="math math-inline">b^i</span> respectively. <code>deriving (Show)</code> tells the compiler that we want this type to be show-able, which in this case just means that it can be coerced into a string so we can print it. When we can or cannot derive a <em>typeclass</em> (what we call characteristics) is dependent on a couple of things, but <code>Show</code> is relatively simple I thing. If you’ve programmed in Rust before, this is largely where <code>#[derive(Debug)]</code> comes from. The <code>type</code> keyword defines a synonyms for a type, as opposed to <code>data</code> which defines a <em>new</em> type.  In this case, it’s just nicer to give this type a name.</p>
-<p>Eventually, we’ll need to subtract thetas and scale them by a <code>double</code> type. Of course, this is exactly defining a vector space over the theta type, and we could probably define a vector space typeclass to get some nice binary operations to do this, but this is just as achievable, and probably easier, to just do with functions.</p>
+<p class="has-math"><code>data</code> is how we define a new type in Haskell, the <code>Theta</code> on the other side of
+the definition is the data constructor of this type. While not strictly
+necessary, I like using data constructors as a sort of built in label for
+parameters which is helpful if you’re, like me, bad about naming your variables.
+<code>[(Matrix Double, Vector Double)]</code> means that this is a list of the tuple of a
+matrix of doubles, and a vector of doubles, our $W^i$ and $b^i$ respectively.
+<code>deriving (Show)</code> tells the compiler that we want this type to be show-able,
+which in this case just means that it can be coerced into a string so we can
+print it. When we can or cannot derive a <em>typeclass</em> (what we call
+characteristics) is dependent on a couple of things, but <code>Show</code> is relatively
+simple I thing. If you’ve programmed in Rust before, this is largely where
+<code>#[derive(Debug)]</code> comes from. The <code>type</code> keyword defines a synonyms for a type,
+as opposed to <code>data</code> which defines a <em>new</em> type. In this case, it’s just nicer
+to give this type a name.</p>
+<p>Eventually, we’ll need to subtract thetas and scale them by a <code>double</code> type. Of
+course, this is exactly defining a vector space over the theta type, and we
+could probably define a vector space typeclass to get some nice binary
+operations to do this, but this is just as achievable, and probably easier, to
+just do with functions.</p>
 <html><head></head><body><div class="code-block" data-lang="Haskell"><pre class="hl-code code language-Haskell"><code><span class="hl-source hl-haskell"><span class="hl-variable hl-other hl-haskell">scaleThetas</span> <span class="hl-punctuation hl-separator hl-type hl-haskell">::</span> <span class="hl-storage hl-type hl-haskell">Theta</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> <span class="hl-storage hl-type hl-haskell">Theta</span>
 <span class="hl-variable hl-other hl-haskell">scaleThetas</span> (<span class="hl-storage hl-type hl-haskell">Theta</span> <span class="hl-variable hl-other hl-haskell">ts</span>) <span class="hl-variable hl-other hl-haskell">eta</span> <span class="hl-keyword hl-operator hl-haskell">=</span> <span class="hl-storage hl-type hl-haskell">Theta</span> (<span class="hl-support hl-function hl-prelude hl-haskell">fmap</span> (<span class="hl-keyword hl-operator hl-haskell">\</span>(<span class="hl-variable hl-other hl-haskell">x</span><span class="hl-punctuation hl-separator hl-sequence hl-haskell">,</span> <span class="hl-variable hl-other hl-haskell">y</span>) <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> (<span class="hl-variable hl-other hl-haskell">scale</span> <span class="hl-variable hl-other hl-haskell">eta</span> <span class="hl-variable hl-other hl-haskell">x</span><span class="hl-punctuation hl-separator hl-sequence hl-haskell">,</span> <span class="hl-variable hl-other hl-haskell">scale</span> <span class="hl-variable hl-other hl-haskell">eta</span> <span class="hl-variable hl-other hl-haskell">y</span>)) <span class="hl-variable hl-other hl-haskell">ts</span>)
 
 <span class="hl-variable hl-other hl-haskell">subtractThetas</span> <span class="hl-punctuation hl-separator hl-type hl-haskell">::</span> <span class="hl-storage hl-type hl-haskell">Theta</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> <span class="hl-storage hl-type hl-haskell">Theta</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> <span class="hl-storage hl-type hl-haskell">Theta</span>
 <span class="hl-variable hl-other hl-haskell">subtractThetas</span> (<span class="hl-storage hl-type hl-haskell">Theta</span> <span class="hl-variable hl-other hl-haskell">ts</span>) (<span class="hl-storage hl-type hl-haskell">Theta</span> <span class="hl-variable hl-other hl-haskell">gs</span>) <span class="hl-keyword hl-operator hl-haskell">=</span> <span class="hl-storage hl-type hl-haskell">Theta</span> (<span class="hl-support hl-function hl-prelude hl-haskell">zipWith</span> (<span class="hl-keyword hl-operator hl-haskell">\</span>(<span class="hl-variable hl-other hl-haskell">x</span><span class="hl-punctuation hl-separator hl-sequence hl-haskell">,</span> <span class="hl-variable hl-other hl-haskell">y</span>) (<span class="hl-variable hl-other hl-haskell">u</span><span class="hl-punctuation hl-separator hl-sequence hl-haskell">,</span> <span class="hl-variable hl-other hl-haskell">v</span>) <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> (<span class="hl-variable hl-other hl-haskell">x</span> <span class="hl-keyword hl-operator hl-haskell">-</span> <span class="hl-variable hl-other hl-haskell">u</span><span class="hl-punctuation hl-separator hl-sequence hl-haskell">,</span> <span class="hl-variable hl-other hl-haskell">y</span> <span class="hl-keyword hl-operator hl-haskell">-</span> <span class="hl-variable hl-other hl-haskell">v</span>)) <span class="hl-variable hl-other hl-haskell">ts</span> <span class="hl-variable hl-other hl-haskell">gs</span>)
 </span></code></pre></div></body></html>
-<p>The double colon, <code>::</code> should be read as “has type of”. Exactly why there isn’t a distinction between what are procedurally thought of as the parameters and the output of the function is an iota outside of the scope of this article unfortunately, but the keyword to google here is <em>currying</em> (maybe like the food, I never asked). First, looking at the <code>scaleThetas</code> function, we take as input a theta and a double, then fmaps the anonymous function <code>(\x,y) -&gt; (scale eta x, scale eta y)</code> on the <code>Theta</code>. <code>fmap</code> stands for “function map”, and does just that, given a function and a list, return the list with the function applied to each element of the list, and <code>scale</code> is provided by the Vector and Matrix types to do scalar multiplication. Looking at the <code>subtractThetas</code> function, <code>zipWith</code> is a combination of <code>fmap</code> and <code>zip</code>, so we’re combining two lists, the inputs <code>ts</code> and <code>gs</code>, then applying the lambda function <code>\(x,y) (u,v) -&gt; (x - u, (y - v))</code> to that combined list.
-Let’s write the function for running running our neural network, that is, of obtaining an approximation <span class="math math-inline">\hat y</span> for an input <span class="math math-inline">x</span>. Remember that our network is just a composition of matrices, vector additions, and activation functions which we apply iteratively, this is rather cleanly expressed by the <code>fold</code> function which Haskell provides us with.</p>
-<p>If mathematical notation is more your jive, then the basic procedure that <code>fold</code> describes can be interpreted as:</p>
-<p><span class="math math-display">\text{fold}~f~a~\mathbf{b} = f(...f(f(f(a, b_1),b_2),b_3) ... b_n)</span></p>
-<p>where <span class="math math-inline">\mathbf{b}</span> is a list of <span class="math math-inline">n</span> numbers. Maybe you can already see how this applies to our neural network, seeing as how this looks very much like our definition of a neural network.
-<label for="catamorphism" id="1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="catamorphism" class="margin-toggle"><span class="sidenote">
-The google term for further reading on the categorical approach to this type of function is <em>catamorphism</em> for those of us inclinded to abstract nonsense.
-</span></p>
-<p>Interpreted as concretely as possible, the <code>fold</code> function takes a binary operator, an accumulator and a list, applies the operator to each element in the list with the accumulator, inorder. It might help to think of it in more programing-y terms:<code>foldl</code> “reduces” the list starting from the left, and has a type of <code>foldl:: Foldable t =&gt; (b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b</code>. <code>Foldable t</code> is a restriction on the type of <code>t</code>, meaning that whatever <code>t a</code> is, it should be foldable over, this is another example of a typeclass, like <code>Show</code> from earlier. In our case, we’ll be iterating over our <span class="math math-inline">\theta</span> which has the list type, which is foldable over. Next, we see from the type that we want a function <code>(b -&gt; a -&gt; b)</code> that is, it takes a type <code>b</code> and a type <code>a</code> and gives back a type <code>b</code>, this is our binary operator. Then we also require a <code>b</code>, which is our accumulator value, and finally the list <code>t a</code> which we process, returning a <code>b</code>. . Recall our mathematical definition of a neural network:</p>
-<p><span class="math math-display"> g(x) = f(W^L(f(W^{L-1}f(...f(W^1x + b^1)))+b^{L-1})+b^L) </span></p>
-<p>We want to end up with an output vector, so <code>b</code> is already determined to be of type <code>Vector Double</code>, and we want to process over our <code>Theta</code>, so <code>a</code> naturally becomes the tuple <code>(Matrix Double, Vector Double)</code>. If we keep our activation function <span class="math math-inline">f</span> consistent across all layers, the above formula is expressed rather cleanly as</p>
+<p class="has-math">The double colon, <code>::</code> should be read as “has type of”. Exactly why there isn’t
+a distinction between what are procedurally thought of as the parameters and the
+output of the function is an iota outside of the scope of this article
+unfortunately, but the keyword to google here is <em>currying</em> (maybe like the
+food, I never asked). First, looking at the <code>scaleThetas</code> function, we take as
+input a theta and a double, then fmaps the anonymous function
+<code>(\x,y) -&gt; (scale eta x, scale eta y)</code> on the <code>Theta</code>. <code>fmap</code> stands for
+“function map”, and does just that, given a function and a list, return the list
+with the function applied to each element of the list, and <code>scale</code> is provided
+by the Vector and Matrix types to do scalar multiplication. Looking at the
+<code>subtractThetas</code> function, <code>zipWith</code> is a combination of <code>fmap</code> and <code>zip</code>, so
+we’re combining two lists, the inputs <code>ts</code> and <code>gs</code>, then applying the lambda
+function <code>\(x,y) (u,v) -&gt; (x - u, (y - v))</code> to that combined list. Let’s write
+the function for running running our neural network, that is, of obtaining an
+approximation $\hat y$ for an input $x$. Remember that our network is just a
+composition of matrices, vector additions, and activation functions which we
+apply iteratively, this is rather cleanly expressed by the <code>fold</code> function which
+Haskell provides us with.</p>
+<p>If mathematical notation is more your jive, then the basic procedure that <code>fold</code>
+describes can be interpreted as:</p>
+<p class="has-math">$$\text{fold}<sub>f~a</sub>\mathbf{b} = f(…f(f(f(a, b_1),b_2),b_3) … b_n)$$</p>
+<p class="has-math">Where $\mathbf{b}$ is a list of $n$ numbers. Maybe you can already see how this
+applies to our neural network, seeing as how this looks very much like our
+definition of a neural network. <label for="sn-2" id="2" class="margin-toggle sidenote-number">
+</label><input type="checkbox" id="sn-2" class="margin-toggle">
+<span class="sidenote">The google term for further reading on the
+categorical approach to this type of function is <em>catamorphism</em> for those of us
+inclined to abstract nonsense.</span></p>
+<p class="has-math">Interpreted as concretely as possible, the <code>fold</code> function takes a binary
+operator, an accumulator and a list, applies the operator to each element in the
+list with the accumulator, in order. It might help to think of it in more
+programming-y terms:<code>foldl</code> “reduces” the list starting from the left, and has a
+type of <code>foldl:: Foldable t =&gt; (b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b</code>. <code>Foldable t</code> is
+a restriction on the type of <code>t</code>, meaning that whatever <code>t a</code> is, it should be
+foldable over, this is another example of a type class, like <code>Show</code> from
+earlier. In our case, we’ll be iterating over our $\theta$ which has the list
+type, which is foldable over. Next, we see from the type that we want a function
+<code>(b -&gt; a -&gt; b)</code> that is, it takes a type <code>b</code> and a type <code>a</code> and gives back a
+type <code>b</code>, this is our binary operator. Then we also require a <code>b</code>, which is our
+accumulator value, and finally the list <code>t a</code> which we process, returning a <code>b</code>.
+. Recall our mathematical definition of a neural network:</p>
+<p class="has-math">$$ g(x) = f(W^L(f(W^{L-1}f(…f(W^1x + b^1)))+b^{L-1})+b^L) $$</p>
+<p class="has-math">We want to end up with an output vector, so <code>b</code> is already determined to be of
+type <code>Vector Double</code>, and we want to process over our <code>Theta</code>, so <code>a</code> naturally
+becomes the tuple <code>(Matrix Double, Vector Double)</code>. If we keep our activation
+function $f$ consistent across all layers, the above formula is expressed rather
+cleanly as</p>
 <html><head></head><body><div class="code-block" data-lang="Haskell"><pre class="hl-code code language-Haskell"><code><span class="hl-source hl-haskell"><span class="hl-variable hl-other hl-haskell">forward</span> <span class="hl-punctuation hl-separator hl-type hl-haskell">::</span> <span class="hl-storage hl-type hl-haskell">Network</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> <span class="hl-storage hl-type hl-haskell">Vector</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> <span class="hl-storage hl-type hl-haskell">Vector</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span>
 <span class="hl-variable hl-other hl-haskell">forward</span> (<span class="hl-storage hl-type hl-haskell">Network</span> (<span class="hl-storage hl-type hl-haskell">Theta</span> <span class="hl-variable hl-other hl-haskell">ts</span>) <span class="hl-variable hl-language hl-anonymous hl-haskell">_</span> <span class="hl-variable hl-other hl-haskell">f</span> <span class="hl-variable hl-language hl-anonymous hl-haskell">_</span>) <span class="hl-variable hl-other hl-haskell">x0</span> <span class="hl-keyword hl-operator hl-haskell">=</span>
     <span class="hl-support hl-function hl-prelude hl-haskell">foldl</span> <span class="hl-variable hl-other hl-haskell">step</span> <span class="hl-variable hl-other hl-haskell">x0</span> <span class="hl-variable hl-other hl-haskell">ts</span>
@@ -339,25 +416,65 @@ The google term for further reading on the categorical approach to this type of 
     <span class="hl-variable hl-other hl-haskell">step</span> <span class="hl-punctuation hl-separator hl-type hl-haskell">::</span> <span class="hl-storage hl-type hl-haskell">Vector</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> (<span class="hl-storage hl-type hl-haskell">Matrix</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span><span class="hl-punctuation hl-separator hl-sequence hl-haskell">,</span> <span class="hl-storage hl-type hl-haskell">Vector</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span>) <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> <span class="hl-storage hl-type hl-haskell">Vector</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span>
     <span class="hl-variable hl-other hl-haskell">step</span> <span class="hl-variable hl-other hl-haskell">x</span> (<span class="hl-variable hl-other hl-haskell">w</span><span class="hl-punctuation hl-separator hl-sequence hl-haskell">,</span> <span class="hl-variable hl-other hl-haskell">b</span>) <span class="hl-keyword hl-operator hl-haskell">=</span> <span class="hl-variable hl-other hl-haskell">cmap</span> <span class="hl-variable hl-other hl-haskell">f</span> (<span class="hl-variable hl-other hl-haskell">w</span> <span class="hl-keyword hl-operator hl-haskell">#&gt;</span> <span class="hl-variable hl-other hl-haskell">x</span> <span class="hl-keyword hl-operator hl-haskell">+</span> <span class="hl-variable hl-other hl-haskell">b</span>)
 </span></code></pre></div></body></html>
-<p><code>#&gt;</code> is just the Matrix-by-vector multiplication that <code>hmatrix</code>, the linear algebra library I tend to default to, uses. As nice as this is, if you’re familiar with neural networks you might be wrinkling your nose a little right now. Firstly, we’ll often not apply an activation layer to our last layer to ensure that our network can produce the entire range of values we’re interested in, so we’ll need to special case our last layer. Additionally, recall from the backpropagation equations, we need <em>all</em> <span class="math math-inline">z^l</span>, not just the final output. But never fret reader, any problem is really just a teachable moment, and we’ll use this particular problem to learn about monads!</p>
+<p class="has-math"><code>#&gt;</code> is just the Matrix-by-vector multiplication that <code>hmatrix</code>, the linear
+algebra library I tend to default to, uses. As nice as this is, if you’re
+familiar with neural networks you might be wrinkling your nose a little right
+now. Firstly, we’ll often not apply an activation layer to our last layer to
+ensure that our network can produce the entire range of values we’re interested
+in, so we’ll need to special case our last layer. Additionally, recall from the
+backpropagation equations, we need <em>all</em> $z^l$, not just the final output. But
+never fret reader, any problem is really just a teachable moment, and we’ll use
+this particular problem to learn about monads!</p>
 <h2 id="monoids-in-the-category-of-endofunctors">Monoids in the Category of Endofunctors</h2>
-<p>One of the more famously unhelpful sentences in programming is the answer to the question “What is a monad?” which canonically is “Well simple! It’s just a monoid in the category of endofunctors! Of course!”. This definition<label for="def" id="3" class="margin-toggle sidenote-number"></label><input type="checkbox" id="def" class="margin-toggle"><span class="sidenote">
-This is the secondary definition from a category theory perspective, and should probably not be admitted into the conversation at all from the functional programming perspective.The story goes that this result/definition was first published in <em>Categories for the Working Mathematician</em> by Mac Lane, and then popularized as a sardonic remark attributed to Phil Wadler (who introduced monads into early Haskell) in James Iry’s seminal blog <em>A Brief, Incomplete, and Mostly Wrong History of Programming Languages</em>. Supposedly, when Wadler read the article he responded in the mailing list “I did not know this, does someone have a proof?”
-</span>
-is mostly a joke. There are countless blogs and videos (I recommend the sheafification of g’s video on the subject personally) trying to explain monads; it’s a rite of passage for functional bros I think. In a sentence, a monad is a functor <span class="math math-inline">T</span> (a function which operates on types) which has an associated transformations <span class="math math-inline">\eta, \mu</span> (things that operate on the functor) which are associative and unital respectively, we won’t spend more time on this definition today. Today, we’ll focus on only the monad we care about, the <code>Writer</code> monad, to demonstrate how you would actually use one of these things in the field. I will quote Kwang’s excellent article on the writer monad to define it</p>
+<p class="has-math">One of the more famously unhelpful sentences in programming is the answer to the
+question “What is a monad?” which canonically is “Well simple! It’s just a
+monoid in the category of endofunctors! Of course!”. This definition <label for="sn-3" id="3" class="margin-toggle sidenote-number">
+</label><input type="checkbox" id="sn-3" class="margin-toggle">
+<span class="sidenote"> This is
+the secondary definition from a category theory perspective, and should probably
+not be admitted into the conversation at all from the functional programming
+perspective.The story goes that this result/definition was first published in
+<em>Categories for the Working Mathematician</em> by Mac Lane, and then popularized as
+a sardonic remark attributed to Phil Wadler (who introduced monads into early
+Haskell) in James Iry’s seminal blog <em>A Brief, Incomplete, and Mostly Wrong
+History of Programming Languages</em>. Supposedly, when Wadler read the article he
+responded in the mailing list “I did not know this, does someone have a proof?”
+</span> is mostly a joke. There are countless blogs and videos (I recommend the
+sheafification of g’s video on the subject personally) trying to explain monads;
+it’s a rite of passage for functional bros I think. In a sentence, a monad is a
+functor $T$ (a function which operates on types) which has an associated
+transformations $\eta, \mu$ (things that operate on the functor) which are
+associative and unital respectively, we won’t spend more time on this definition
+today. Today, we’ll focus on only the monad we care about, the <code>Writer</code> monad,
+to demonstrate how you would actually use one of these things in the field. I
+will quote Kwang’s excellent article on the writer monad to define it</p>
 <blockquote>
-<p>“The Writer monad represents computations which produce a stream of data in addition to the computed values”</p>
+<p>“The Writer monad represents computations which produce a stream of data in
+addition to the computed values”</p>
 </blockquote>
-<p>This definition is a little funny because, in many ways, this is what <em>all</em> monads do; encode additional “side effects” of otherwise pure code. When in the context of the writer monad, we can use <code>tell</code> (this is our associative natural transformation <span class="math math-inline">\eta</span>) to add to our list of logs, and <code>pure</code> to give back our actual value (this is our unital natural transformation <span class="math math-inline">\mu</span>). The writer monad allows us to turn a function that would otherwise look like this:</p>
+<p class="has-math">This definition is a little funny because, in many ways, this is what <em>all</em>
+monads do; encode additional “side effects” of otherwise pure code. When in the
+context of the writer monad, we can use <code>tell</code> (this is our associative natural
+transformation $\eta$) to add to our list of logs, and <code>pure</code> to give back our
+actual value (this is our unital natural transformation $\mu$). The writer monad
+allows us to turn a function that would otherwise look like this:</p>
 <html><head></head><body><div class="code-block" data-lang="Haskell"><pre class="hl-code code language-Haskell"><code><span class="hl-source hl-haskell"><span class="hl-variable hl-other hl-haskell">functionWithLogsPure</span> <span class="hl-punctuation hl-separator hl-type hl-haskell">::</span> <span class="hl-variable hl-other hl-haskell">inputType</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> (<span class="hl-variable hl-other hl-haskell">outputType</span><span class="hl-punctuation hl-separator hl-sequence hl-haskell">,</span> [<span class="hl-variable hl-other hl-haskell">logType</span>])
 </span></code></pre></div></body></html>
 <p>To a function that looks like this:</p>
 <html><head></head><body><div class="code-block" data-lang="Haskell"><pre class="hl-code code language-Haskell"><code><span class="hl-source hl-haskell"><span class="hl-variable hl-other hl-haskell">functionWithLogsWriter</span> <span class="hl-punctuation hl-separator hl-type hl-haskell">::</span> <span class="hl-variable hl-other hl-haskell">inputType</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> <span class="hl-storage hl-type hl-haskell">Writer</span> <span class="hl-variable hl-other hl-haskell">logType</span> <span class="hl-variable hl-other hl-haskell">outputType</span>
 </span></code></pre></div></body></html>
-<p>While also affording us the common operations we expect from logging functionality. This point was something that took me a long time to get into my brain, inside the context of a purely functional language like Haskell, monads do not necessarily afford you any additional computational power, but rather they more naturally allow us to express computations which are unpure, that is, from inside the language, monads are primarily syntactic sugar
-<label for="monads" id="2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="monads" class="margin-toggle"><span class="sidenote">
-This is only within the context of the pure language. At the boundary of the language, that is, printing a line, taking input etc. there ultimately will always be unpure side effects. In this context, monads describe effectual interaction with the “real world”.
-</span>. A slight hitch in this is that <code>foldl</code> is a pure function, which means that the type checker will get very mad at you if you try to use monads with it, luckily we have <code>foldlM</code> which allows us to pass monadic functions to it. Implementing the writer monad into our naive <code>forward</code> we get</p>
+<p>While also affording us the common operations we expect from logging
+functionality. This point was something that took me a long time to get into my
+brain, inside the context of a purely functional language like Haskell, monads
+do not necessarily afford you any additional computational power, everything
+that the <code>Monad</code> interface provides can be handwritten from inside the purely
+functional language. Rather, monads are a natural way to express computations
+algebraically, allowing us to supply a user with a generic way to do
+inconvenient things or mandating how our API should be used.</p>
+<p>A slight hitch in this is that <code>foldl</code> is a pure function, which means that the
+type checker will get very mad at you if you try to use monads with it, luckily
+we have <code>foldlM</code> which allows us to pass monadic functions to it. Implementing
+the writer monad into our naive <code>forward</code> we get</p>
 <html><head></head><body><div class="code-block" data-lang="Haskell"><pre class="hl-code code language-Haskell"><code><span class="hl-source hl-haskell"><span class="hl-variable hl-other hl-haskell">forwardW</span> <span class="hl-punctuation hl-separator hl-type hl-haskell">::</span>
     <span class="hl-storage hl-type hl-haskell">Network</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span>
     <span class="hl-storage hl-type hl-haskell">Vector</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span>
@@ -376,9 +493,23 @@ This is only within the context of the pure language. At the boundary of the lan
         <span class="hl-variable hl-other hl-haskell">tell</span> (<span class="hl-variable hl-namespace hl-haskell">DL</span><span class="hl-punctuation hl-accessor hl-dot hl-haskell">.</span><span class="hl-variable hl-other hl-haskell">singleton</span> <span class="hl-variable hl-other hl-haskell">z</span>)
         <span class="hl-support hl-function hl-prelude hl-haskell">pure</span> <span class="hl-variable hl-other hl-haskell">z</span>
 </span></code></pre></div></body></html>
-<p>(Authors note: This is wrong now that I look at it, we should be <code>tell</code>ing the preactivated <code>z</code>s, with ReLU the bug is functionally invisible but does need to be fixed).</p>
-<p>Every step of the <code>foldlM</code>, we <code>tell</code> to our List the resulting <code>z</code>, and pass to the next call <code>pure z</code>. The resulting output of the <code>fowardW</code> function is <code>[y_hat, [a_1, a_2, a_3 ... a_l]]</code> (<code>DList</code> is an interesting data structure that I will not be reviewing today, think of it simply as a list). The last piece of the puzzle before we can train our neural network is implementing the backpropagation. The output of backpropagation is in effect just a <span class="math math-inline">\theta</span> type, so what we need to compute backpropagation is an input value, the actual output value, the network, and we’ll return a <span class="math math-inline">\theta</span>.</p>
-<p>Similarly to how <code>foldl</code> rather cleanly describes the forward pass of the neural network. We can use <code>scanr</code>, which does effectively the same thing, only instead of from the left it does so from the right, and also instead of returning the accumulated value, it returns a list of iterations, which, for a recursive formula like the one that the backpropagation equations describe, is a perfect fit. All told, this is what a backpropagation implementation looks like:</p>
+<p>(Authors note: This is wrong now that I look at it, we should be <code>tell</code>ing the
+preactivated <code>z</code>s, with ReLU the bug is functionally invisible but does need to
+be fixed).</p>
+<p class="has-math">Every step of the <code>foldlM</code>, we <code>tell</code> to our List the resulting <code>z</code>, and pass to
+the next call <code>pure z</code>. The resulting output of the <code>fowardW</code> function is
+<code>[y_hat, [a_1, a_2, a_3 ... a_l]]</code> (<code>DList</code> is an interesting data structure
+that I will not be reviewing today, think of it simply as a list). The last
+piece of the puzzle before we can train our neural network is implementing the
+backpropagation. The output of backpropagation is in effect just a $\theta$
+type, so what we need to compute backpropagation is an input value, the actual
+output value, the network, and we’ll return a $\theta$.</p>
+<p>Similarly to how <code>foldl</code> rather cleanly describes the forward pass of the neural
+network. We can use <code>scanr</code>, which does effectively the same thing, only instead
+of from the left it does so from the right, and also instead of returning the
+accumulated value, it returns a list of iterations, which, for a recursive
+formula like the one that the backpropagation equations describe, is a perfect
+fit. All told, this is what a backpropagation implementation looks like:</p>
 <html><head></head><body><div class="code-block" data-lang="Haskell"><pre class="hl-code code language-Haskell"><code><span class="hl-source hl-haskell"><span class="hl-variable hl-other hl-haskell">backprop</span> <span class="hl-punctuation hl-separator hl-type hl-haskell">::</span> <span class="hl-storage hl-type hl-haskell">Vector</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> <span class="hl-storage hl-type hl-haskell">Vector</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> <span class="hl-storage hl-type hl-haskell">Network</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> <span class="hl-storage hl-type hl-haskell">Theta</span>
 <span class="hl-variable hl-other hl-haskell">backprop</span> <span class="hl-variable hl-other hl-haskell">x</span> <span class="hl-variable hl-other hl-haskell">y</span> (<span class="hl-storage hl-type hl-haskell">Network</span> (<span class="hl-storage hl-type hl-haskell">Theta</span> <span class="hl-variable hl-other hl-haskell">ts</span>) <span class="hl-variable hl-other hl-haskell">c'</span> <span class="hl-variable hl-other hl-haskell">f</span> <span class="hl-variable hl-other hl-haskell">f'</span>) <span class="hl-keyword hl-operator hl-haskell">=</span>
     <span class="hl-keyword hl-declaration hl-variable hl-haskell">let</span>
@@ -395,7 +526,8 @@ This is only within the context of the pure language. At the boundary of the lan
         <span class="hl-storage hl-type hl-haskell">Theta</span> (<span class="hl-support hl-function hl-prelude hl-haskell">zip</span> <span class="hl-variable hl-other hl-haskell">gradw</span> <span class="hl-variable hl-other hl-haskell">deltas</span>)
 </span></code></pre></div></body></html>
 <h2 id="training-montage-time">Training montage time</h2>
-<p>Finally, all that’s left to do is get some data to test on. We can generate some of the sin function pretty easily:</p>
+<p>Finally, all that’s left to do is get some data to test on. We can generate some
+of the sin function pretty easily:</p>
 <html><head></head><body><div class="code-block" data-lang="Haskell"><pre class="hl-code code language-Haskell"><code><span class="hl-source hl-haskell"><span class="hl-variable hl-other hl-haskell">sinData</span> <span class="hl-punctuation hl-separator hl-type hl-haskell">::</span> (<span class="hl-storage hl-type hl-haskell">RandomGen</span> <span class="hl-variable hl-other hl-haskell">g</span>) <span class="hl-punctuation hl-separator hl-type hl-context hl-haskell">=&gt;</span> <span class="hl-support hl-type hl-prelude hl-haskell">Int</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> <span class="hl-variable hl-other hl-haskell">g</span> <span class="hl-keyword hl-operator hl-arrow hl-haskell">-&gt;</span> [(<span class="hl-storage hl-type hl-haskell">Vector</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span><span class="hl-punctuation hl-separator hl-sequence hl-haskell">,</span> <span class="hl-storage hl-type hl-haskell">Vector</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span>)]
 <span class="hl-variable hl-other hl-haskell">sinData</span> <span class="hl-variable hl-other hl-haskell">k</span> <span class="hl-variable hl-other hl-haskell">gen</span> <span class="hl-keyword hl-operator hl-haskell">=</span> <span class="hl-support hl-function hl-prelude hl-haskell">zip</span> <span class="hl-variable hl-other hl-haskell">x</span> <span class="hl-variable hl-other hl-haskell">y</span>
   <span class="hl-keyword hl-control hl-context hl-haskell">where</span>
@@ -408,10 +540,28 @@ This is only within the context of the pure language. At the boundary of the lan
     <span class="hl-variable hl-other hl-haskell">x</span> <span class="hl-keyword hl-operator hl-haskell">=</span> [<span class="hl-meta hl-number hl-integer hl-decimal hl-haskell"><span class="hl-constant hl-numeric hl-value hl-haskell">0</span></span><span class="hl-punctuation hl-separator hl-sequence hl-haskell">,</span> <span class="hl-meta hl-number hl-float hl-decimal hl-haskell"><span class="hl-constant hl-numeric hl-value hl-haskell">0<span class="hl-punctuation hl-separator hl-decimal hl-haskell">.</span>01</span></span> <span class="hl-keyword hl-operator hl-haskell">..</span> <span class="hl-meta hl-number hl-integer hl-decimal hl-haskell"><span class="hl-constant hl-numeric hl-value hl-haskell">2</span></span> <span class="hl-keyword hl-operator hl-haskell">*</span> <span class="hl-support hl-function hl-prelude hl-haskell">pi</span>]
     <span class="hl-variable hl-other hl-haskell">y</span> <span class="hl-keyword hl-operator hl-haskell">=</span> <span class="hl-support hl-function hl-prelude hl-haskell">map</span> <span class="hl-support hl-function hl-prelude hl-haskell">sin</span> <span class="hl-variable hl-other hl-haskell">x</span>
 </span></code></pre></div></body></html>
-<p>The <code>$</code> operator is the lowest priority, right associative infix operator, it simply takes <code>a</code> on the left and applies it to <code>b</code> on the right. This is in contrast to normal function application, which is the highest priority and left associative. In particle terms, it dictates that <code>take k</code> is applied to the result of <code>uniformRs</code> before <code>fmap scalar</code> is ever applied. The above <code>x</code> binding can be equivalently rewritten as</p>
+<p>The <code>$</code> operator is the lowest priority, right associative infix operator, it
+simply takes <code>a</code> on the left and applies it to <code>b</code> on the right. This is in
+contrast to normal function application, which is the highest priority and left
+associative. In particle terms, it dictates that <code>take k</code> is applied to the
+result of <code>uniformRs</code> before <code>fmap scalar</code> is ever applied. The above <code>x</code>
+binding can be equivalently rewritten as</p>
 <html><head></head><body><div class="code-block" data-lang="Haskell"><pre class="hl-code code language-Haskell"><code><span class="hl-source hl-haskell"><span class="hl-variable hl-other hl-haskell">x</span> <span class="hl-keyword hl-operator hl-haskell">=</span> <span class="hl-support hl-function hl-prelude hl-haskell">fmap</span> <span class="hl-variable hl-other hl-haskell">scalar</span> (<span class="hl-support hl-function hl-prelude hl-haskell">take</span> <span class="hl-variable hl-other hl-haskell">k</span> (<span class="hl-variable hl-other hl-haskell">uniformRs</span> (<span class="hl-meta hl-number hl-integer hl-decimal hl-haskell"><span class="hl-constant hl-numeric hl-value hl-haskell">0</span></span> <span class="hl-punctuation hl-separator hl-type hl-haskell">::</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span><span class="hl-punctuation hl-separator hl-sequence hl-haskell">,</span> <span class="hl-meta hl-number hl-integer hl-decimal hl-haskell"><span class="hl-constant hl-numeric hl-value hl-haskell">2</span></span> <span class="hl-keyword hl-operator hl-haskell">*</span> <span class="hl-support hl-function hl-prelude hl-haskell">pi</span> <span class="hl-punctuation hl-separator hl-type hl-haskell">::</span> <span class="hl-support hl-type hl-prelude hl-haskell">Double</span>) <span class="hl-variable hl-other hl-haskell">gen</span>))
 </span></code></pre></div></body></html>
-<p>I hope you can see why <code>$</code> makes life a little easier. Before we move on to the main function, I’d like to highlight a neat feature of Haskell, namely, how a feature called lazy evaluation allows us to generate arbitrary random numbers. Lazy evaluation dictates that code will only be ran when it is needed, this allows lists to be practically “infinite”. The function <code>uniformRs</code> takes a range, in this case from <span class="math math-inline">0</span> to <span class="math math-inline">2\pi</span>, and a generator, and returns an arbitrarily long list of random numbers, uniformly distributed in that range. When we <code>take k</code>, we’re basically asking Haskell to evaluate the first <code>k</code>, and return it as a list, this is very similar to how we can treat iterators as infinite lists in python. I find lazy evaluation to be one of those language features that, due to the reality of hardware, is understandably missing from mainstream programming paradigms (although, I guess JIT is in its own way lazily evaluating programs), but is an incredibly natural way to reason about your program.</p>
+<p class="has-math">I hope you can see why <code>$</code> makes life a little easier. Before we move on to the
+main function, I’d like to highlight a neat feature of Haskell, namely, how a
+feature called lazy evaluation allows us to generate arbitrary random numbers.
+Lazy evaluation dictates that code will only be ran when it is needed, this
+allows lists to be practically “infinite”. The function <code>uniformRs</code> takes a
+range, in this case from $0$ to $2\pi$, and a generator, and returns an
+arbitrarily long list of random numbers, uniformly distributed in that range.
+When we <code>take k</code>, we’re basically asking Haskell to evaluate the first <code>k</code>, and
+return it as a list, this is very similar to how we can treat iterators as
+infinite lists in python. I find lazy evaluation to be one of those language
+features that, due to the reality of hardware, is understandably missing from
+mainstream programming paradigms (although, I guess JIT is in its own way lazily
+evaluating programs), but is an incredibly natural way to reason about your
+program.</p>
 <p>We can put all of the above together in a main function like so:</p>
 <html><head></head><body><div class="code-block" data-lang="Haskell"><pre class="hl-code code language-Haskell"><code><span class="hl-source hl-haskell"><span class="hl-variable hl-other hl-haskell">main</span> <span class="hl-punctuation hl-separator hl-type hl-haskell">::</span> <span class="hl-support hl-type hl-prelude hl-haskell">IO</span> <span class="hl-meta hl-sequence hl-tuple hl-empty hl-haskell"><span class="hl-punctuation hl-section hl-sequence hl-begin hl-haskell">(</span><span class="hl-punctuation hl-section hl-sequence hl-end hl-haskell">)</span></span>
 <span class="hl-variable hl-other hl-haskell">main</span> <span class="hl-keyword hl-operator hl-haskell">=</span> <span class="hl-keyword hl-control hl-context hl-haskell">do</span>
@@ -427,10 +577,36 @@ This is only within the context of the pure language. At the boundary of the lan
         <span class="hl-variable hl-other hl-haskell">scaleInput</span> (<span class="hl-variable hl-other hl-haskell">input</span><span class="hl-punctuation hl-separator hl-sequence hl-haskell">,</span> <span class="hl-variable hl-other hl-haskell">test</span>) <span class="hl-keyword hl-operator hl-haskell">=</span> (<span class="hl-variable hl-other hl-haskell">input</span> <span class="hl-keyword hl-operator hl-haskell">/</span> (<span class="hl-meta hl-number hl-integer hl-decimal hl-haskell"><span class="hl-constant hl-numeric hl-value hl-haskell">2</span></span> <span class="hl-keyword hl-operator hl-haskell">*</span> <span class="hl-support hl-function hl-prelude hl-haskell">pi</span>)<span class="hl-punctuation hl-separator hl-sequence hl-haskell">,</span> <span class="hl-variable hl-other hl-haskell">test</span>)
     <span class="hl-support hl-function hl-prelude hl-haskell">writeFile</span> <span class="hl-meta hl-string hl-haskell"><span class="hl-string hl-quoted hl-double hl-haskell"><span class="hl-punctuation hl-definition hl-string hl-begin hl-haskell">"</span>output.txt<span class="hl-punctuation hl-definition hl-string hl-end hl-haskell">"</span></span></span> <span class="hl-keyword hl-operator hl-haskell">$</span> <span class="hl-support hl-function hl-prelude hl-haskell">show</span> <span class="hl-variable hl-other hl-haskell">inputResultList</span>
 </span></code></pre></div></body></html>
-<p>This funny looking operator <code>&lt;$&gt;</code> is the infixed version of <code>fmap</code> is really just saying, “take the function on the left and apply it to the list on the right”.  The <code>.</code> operator is the infixed composition operator. I didn’t include it since it’s rather trivial but <code>scaleInput</code> simply normalizes the data input to range from <span class="math math-inline">[0,1]</span>, which is mostly standard in machine learning since networks can be a little fussy about the magnitude of their inputs. We then scan over all of the training batches, keeping a record of the network at that point, and then we test it and extract the output by <code>fst . runWriter . forwardW</code>. Finally, we write the array to a file, which is rendered by plotly at the top of the page.</p>
+<p class="has-math">This funny looking operator <code>&lt;$&gt;</code> is the infixed version of <code>fmap</code> is really
+just saying, “take the function on the left and apply it to the list on the
+right”. The <code>.</code> operator is the infixed composition operator. I didn’t include
+it since it’s rather trivial but <code>scaleInput</code> simply normalizes the data input
+to range from $[0,1]$, which is mostly standard in machine learning since
+networks can be a little fussy about the magnitude of their inputs. We then scan
+over all of the training batches, keeping a record of the network at that point,
+and then we test it and extract the output by <code>fst . runWriter . forwardW</code>.
+Finally, we write the array to a file, which is rendered by plotly at the top of
+the page.</p>
 <h1 id="conclusion">Conclusion</h1>
 <h2 id="wrapping-up">Wrapping Up</h2>
-<p>At the top of the page you can view the fruits of our labour. We pretty closely manages to converge to the desired sin function. So, whats next? There’s a lot of even the basics of neural networks we haven’t touched on yet. It would be interesting to implement the various optimizers that are industry standards now, namely AdamW and Muon. Muon especially has roots in polynomial algebra, and I wonder if Haskell will have an elegant representation of it. Once the basics are covered, I think I’ll try my hand at implementing more advanced architectures, firstly CNN, and once that’s done the sky’s the limit really. I also want to refactor the way I’m doing the forward pass to be a bit more modular in nature, kind of like PyTorch where a network is composed of several separate layers, a design decision that should have, honestly, been obvious considering that composition is one of the monads strengths. Lastly, towards the end of this project the training times did get a little prohibitive, and I think it would be really interesting to see how well Haskell can handle parallelizing code; alternatively, using a library like <code>copilot</code> which has been making waves in the embedded space for the last couple of years, we can pawn out the computationally expensive subroutines to CUDA code and only worry about high level architecture in Haskell.</p>
+<p>At the top of the page you can view the fruits of our labour. We pretty closely
+manages to converge to the desired sin function. So, whats next? There’s a lot
+of even the basics of neural networks we haven’t touched on yet. It would be
+interesting to implement the various optimizers that are industry standards now,
+namely AdamW and Muon. Muon especially has roots in polynomial algebra, and I
+wonder if Haskell will have an elegant representation of it. Once the basics are
+covered, I think I’ll try my hand at implementing more advanced architectures,
+firstly CNN, and once that’s done the sky’s the limit really. I also want to
+refactor the way I’m doing the forward pass to be a bit more modular in nature,
+kind of like PyTorch where a network is composed of several separate layers, a
+design decision that should have, honestly, been obvious considering that
+composition is one of the monads strengths. Lastly, towards the end of this
+project the training times did get a little prohibitive, and I think it would be
+really interesting to see how well Haskell can handle parallelizing code;
+alternatively, using a library like <code>copilot</code> which has been making waves in the
+embedded space for the last couple of years, we can pawn out the computationally
+expensive subroutines to CUDA code and only worry about high level architecture
+in Haskell.</p>
 </body></html>
       </article>
 
@@ -441,27 +617,14 @@ This is only within the context of the pure language. At the boundary of the lan
     </main>
   </div>
   <script>
-    // pulldown-cmark emits <span class="math math-inline"> and
-    // <span class="math math-display"> with raw LaTeX but no delimiters.
-    // Inject \(...\) / \[...\] before MathJax scans the document.
+    // Math is passed through as-is with $ / $$ delimiters.
     window.MathJax = {
       loader: {load: ['[tex]/ams']},
       tex: {
         packages: {'[+]':['ams']},
-        inlineMath: [ ['\\(', '\\)'] ],
-        displayMath: [ ['\\[', '\\]'] ],
+        inlineMath: [ ['$', '$'] ],
+        displayMath: [ ['$$', '$$'] ],
       },
-      startup: {
-        ready() {
-          document.querySelectorAll('span.math.math-inline').forEach(el => {
-            el.textContent = '\\(' + el.textContent + '\\)';
-          });
-          document.querySelectorAll('span.math.math-display').forEach(el => {
-            el.textContent = '\\[' + el.textContent + '\\]';
-          });
-          MathJax.startup.defaultReady();
-        }
-      }
     };
   </script>
 <script id="MathJax-script" async
