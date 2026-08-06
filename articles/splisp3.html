@@ -7,15 +7,13 @@
     text-align: justify;
   }
   </style>
-  <!-- Default selector is "p, li, dd, blockquote, figcaption"; the drop-cap
-       paragraph is excluded so its lines can wrap around the floated cap, and
-       .has-math blocks so justif doesn't line-break them around the raw `$…$`
-       text that MathJax later replaces with narrower typeset boxes. -->
+  <!-- Marker only: justif's auto entry reads this selector off whatever script
+       tag carries the attribute, and is imported later (see bootJustif at the
+       bottom of the page) so it measures typeset math rather than LaTeX source.
+       Default selector is "p, li, dd, blockquote, figcaption"; the drop-cap
+       paragraph is excluded so its lines can wrap around the floated cap. -->
   <script
-    type="module"
-    blocking="render"
-    data-justif-selector="p:not(.dropcap):not(.has-math), li:not(.has-math), dd:not(.has-math), blockquote:not(.has-math), figcaption:not(.has-math)"
-    src="https://cdn.jsdelivr.net/npm/justif@0.4.2/dist/auto.js"
+    data-justif-selector="p:not(.dropcap), li, dd, blockquote, figcaption"
   ></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -203,8 +201,8 @@ as ready as we’ll ever be to tackle code generation. Code generation is genera
 last stop of the compilation process, where we go from the last level of the
 intermediate representation to the byte code which is executed by the target.</p>
 <p>The <code>Generator</code> class holds the program, the bytecode being built, and two
-symbol tables — one for globals and one mapping local <code>SymbolId</code>s to their
-frame slot index:</p>
+symbol tables, one for globals and one mapping local <code>SymbolId</code>s to their frame
+slot index:</p>
 <html><head></head><body><div class="code-block" data-lang="cpp"><pre class="hl-code code language-cpp"><code><span class="hl-source hl-c++"><span class="hl-comment hl-line hl-double-slash hl-c"><span class="hl-punctuation hl-definition hl-comment hl-c">//</span> generator.hpp
 </span><span class="hl-meta hl-class hl-c++"><span class="hl-keyword hl-declaration hl-class hl-c++">class</span> </span><span class="hl-meta hl-class hl-c++"><span class="hl-entity hl-name hl-class hl-c++">Generator</span></span><span class="hl-meta hl-class hl-c++"> <span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-begin hl-c++">{</span></span></span><span class="hl-meta hl-class hl-c++"><span class="hl-meta hl-block hl-c++">
   <span class="hl-storage hl-modifier hl-c++">const</span> core<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span>Program <span class="hl-keyword hl-operator hl-c++">&amp;</span>program<span class="hl-punctuation hl-terminator hl-c++">;</span>
@@ -214,10 +212,12 @@ frame slot index:</p>
   <span class="hl-comment hl-line hl-double-slash hl-c"><span class="hl-punctuation hl-definition hl-comment hl-c">//</span> ...
 </span></span></span><span class="hl-meta hl-class hl-c++"><span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-end hl-c++">}</span></span></span><span class="hl-punctuation hl-terminator hl-c++">;</span>
 </span></code></pre></div></body></html>
-<p>We need to keep the little bit of state so that so that we can discern whether we need to load a global
-or local symbol. This could have just easily been handled at the scoping step, annotating each <code>SymbolID</code>
-as either local or global.</p>
-<p><code>generate()</code> iterates over every top-level item and appends a <code>HALT</code> at the end:</p>
+<p>We maintain the global and local symbols lists so that so that we can discern
+whether we need to load a global or local symbol. This could have just easily
+been handled at the scoping step, annotating each <code>SymbolID</code> as either local or
+global.</p>
+<p><code>generate()</code> iterates over the top-level IR objects in the <code>program</code> and appends
+a <code>HALT</code> at the end:</p>
 <html><head></head><body><div class="code-block" data-lang="cpp"><pre class="hl-code code language-cpp"><code><span class="hl-source hl-c++"><span class="hl-comment hl-line hl-double-slash hl-c"><span class="hl-punctuation hl-definition hl-comment hl-c">//</span> generator.cpp
 </span>std<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span>vector<span class="hl-punctuation hl-definition hl-generic hl-begin hl-c++">&lt;</span>ISA<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span>Instruction<span class="hl-punctuation hl-definition hl-generic hl-end hl-c++">&gt;</span> <span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-toc-list hl-full-identifier hl-c++">Generator<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span><span class="hl-entity hl-name hl-function hl-c++">generate</span></span></span><span class="hl-meta hl-function hl-parameters hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span></span></span><span class="hl-meta hl-function hl-parameters hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span></span><span class="hl-meta hl-function hl-c++"> </span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-begin hl-c++">{</span></span></span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++">
   <span class="hl-keyword hl-control hl-c++">for</span> <span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span><span class="hl-storage hl-type hl-c">auto</span> <span class="hl-keyword hl-operator hl-c">&amp;</span>top <span class="hl-keyword hl-operator hl-ternary hl-c">:</span> <span class="hl-variable hl-language hl-this hl-c++">this</span><span class="hl-punctuation hl-accessor hl-arrow hl-c++">-&gt;</span><span class="hl-variable hl-other hl-readwrite hl-member hl-c++">program</span><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span>
@@ -226,7 +226,8 @@ as either local or global.</p>
   <span class="hl-keyword hl-control hl-flow hl-return hl-c++">return</span> <span class="hl-variable hl-language hl-this hl-c++">this</span><span class="hl-punctuation hl-accessor hl-arrow hl-c++">-&gt;</span><span class="hl-variable hl-other hl-readwrite hl-member hl-c++">bytecode</span><span class="hl-punctuation hl-terminator hl-c++">;</span>
 </span></span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-end hl-c++">}</span></span></span>
 </span></code></pre></div></body></html>
-<p>each <code>emit_</code> appends instructiosn before dispatching to the next <code>emit_</code> function that needs to run, which results in the following tree</p>
+<p>each <code>emit_</code> appends instructions before dispatching to the next <code>emit_</code>
+function that needs to run, which results in the following tree</p>
 <html><head></head><body><div class="code-block" data-lang="text"><pre class="hl-code code language-text"><code><span class="hl-text hl-plain">  generate()
   └── emit_top(Top)
       ├── [Define] → emit_top_define(Define)
@@ -266,7 +267,8 @@ as either local or global.</p>
   │   └── global_symbols  → MUTGLOBAL id
   └── [Undef]  → PUSH 0
 </span></code></pre></div></body></html>
-<p>We’ve alreayd covered the calling convention in the VM article, so we’ll explain the rest of the produced code in this article</p>
+<p>We’ve already covered the calling convention in the VM article, so we’ll explain
+the rest of the produced code in this article</p>
 <h2 id="constants-and-variables">Constants and Variables</h2>
 <p>Constants are the simplest case, a literal value becomes a single <code>PUSH</code>:</p>
 <html><head></head><body><div class="code-block" data-lang="cpp"><pre class="hl-code code language-cpp"><code><span class="hl-source hl-c++"><span class="hl-comment hl-line hl-double-slash hl-c"><span class="hl-punctuation hl-definition hl-comment hl-c">//</span> generator.cpp
@@ -274,7 +276,9 @@ as either local or global.</p>
   <span class="hl-meta hl-function-call hl-c++"><span class="hl-variable hl-function hl-c++">add_instruction</span><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span></span></span><span class="hl-meta hl-function-call hl-c++"><span class="hl-meta hl-group hl-c++">ISA<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span>Operation<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span>PUSH<span class="hl-punctuation hl-separator hl-c++">,</span> const_var<span class="hl-punctuation hl-accessor hl-dot hl-c++">.</span><span class="hl-variable hl-other hl-readwrite hl-member hl-c++">value</span></span></span><span class="hl-meta hl-function-call hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span></span><span class="hl-punctuation hl-terminator hl-c++">;</span>
 </span></span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-end hl-c++">}</span></span></span>
 </span></code></pre></div></body></html>
-<p>Variables require a lookup, where we check the global and local symbols, emitting the corrosponding op code</p>
+<p>Variables require a lookup, first looking at the <code>const_builtins</code> and then
+checking the global then local tables to find what instruction we should emit.
+<code>const_builtins</code> just includes the nil constant which bookends lists.</p>
 <html><head></head><body><div class="code-block" data-lang="cpp"><pre class="hl-code code language-cpp"><code><span class="hl-source hl-c++"><span class="hl-comment hl-line hl-double-slash hl-c"><span class="hl-punctuation hl-definition hl-comment hl-c">//</span> generator.cpp
 </span><span class="hl-storage hl-type hl-c">void</span> <span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-toc-list hl-full-identifier hl-c++">Generator<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span><span class="hl-entity hl-name hl-function hl-c++">emit_var</span></span></span><span class="hl-meta hl-function hl-parameters hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span></span></span><span class="hl-meta hl-function hl-parameters hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-storage hl-modifier hl-c++">const</span> core<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span>Var <span class="hl-keyword hl-operator hl-c">&amp;</span><span class="hl-variable hl-parameter hl-c++">variable</span><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span></span><span class="hl-meta hl-function hl-c++"> </span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-begin hl-c++">{</span></span></span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++">
   <span class="hl-keyword hl-control hl-c++">if</span> <span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span><span class="hl-storage hl-type hl-c">auto</span> it <span class="hl-keyword hl-operator hl-assignment hl-c">=</span> <span class="hl-variable hl-language hl-this hl-c++">this</span><span class="hl-punctuation hl-accessor hl-arrow hl-c++">-&gt;</span><span class="hl-variable hl-other hl-readwrite hl-member hl-c++">const_builtins</span><span class="hl-punctuation hl-accessor hl-dot hl-c++">.</span><span class="hl-meta hl-method-call hl-c++"><span class="hl-variable hl-function hl-member hl-c++">find</span><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span></span></span><span class="hl-meta hl-method-call hl-c++"><span class="hl-meta hl-group hl-c++">variable<span class="hl-punctuation hl-accessor hl-dot hl-c++">.</span><span class="hl-variable hl-other hl-readwrite hl-member hl-c++">id</span></span></span><span class="hl-meta hl-method-call hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span></span><span class="hl-punctuation hl-terminator hl-c++">;</span>
@@ -292,7 +296,8 @@ as either local or global.</p>
 </span></code></pre></div></body></html>
 <h2 id="globals-and-mutation">Globals and Mutation</h2>
 <p>A top-level <code>define</code> registers the symbol in <code>global_symbols</code> <em>before</em> emitting
-the right-hand side, which allows recursive definitions to resolve the name:</p>
+the right-hand side, which allows recursive definitions to reference their own
+symbol.</p>
 <html><head></head><body><div class="code-block" data-lang="cpp"><pre class="hl-code code language-cpp"><code><span class="hl-source hl-c++"><span class="hl-comment hl-line hl-double-slash hl-c"><span class="hl-punctuation hl-definition hl-comment hl-c">//</span> generator.cpp
 </span><span class="hl-storage hl-type hl-c">void</span> <span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-toc-list hl-full-identifier hl-c++">Generator<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span><span class="hl-entity hl-name hl-function hl-c++">emit_top_define</span></span></span><span class="hl-meta hl-function hl-parameters hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span></span></span><span class="hl-meta hl-function hl-parameters hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-storage hl-modifier hl-c++">const</span> core<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span>Define <span class="hl-keyword hl-operator hl-c">&amp;</span><span class="hl-variable hl-parameter hl-c++">def</span><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span></span><span class="hl-meta hl-function hl-c++"> </span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-begin hl-c++">{</span></span></span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++">
   <span class="hl-variable hl-language hl-this hl-c++">this</span><span class="hl-punctuation hl-accessor hl-arrow hl-c++">-&gt;</span><span class="hl-variable hl-other hl-readwrite hl-member hl-c++">global_symbols</span><span class="hl-punctuation hl-accessor hl-dot hl-c++">.</span><span class="hl-meta hl-method-call hl-c++"><span class="hl-variable hl-function hl-member hl-c++">push_back</span><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span></span></span><span class="hl-meta hl-method-call hl-c++"><span class="hl-meta hl-group hl-c++">def<span class="hl-punctuation hl-accessor hl-dot hl-c++">.</span><span class="hl-variable hl-other hl-readwrite hl-member hl-c++">name</span></span></span><span class="hl-meta hl-method-call hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span></span><span class="hl-punctuation hl-terminator hl-c++">;</span>
@@ -312,9 +317,9 @@ depending on where the binding lives:</p>
 </span></span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-end hl-c++">}</span></span></span>
 </span></code></pre></div></body></html>
 <h2 id="conditionals">Conditionals</h2>
-<p><code>emit_cond</code> uses the backpatch pattern: it emits the condition, reserves a
-<code>CJMP</code> slot, emits the <code>otherwise</code> branch, reserves a <code>JMP</code> slot, then fills in
-both jump targets once it knows the sizes of each branch:</p>
+<p><code>emit_cond</code> uses the backpatch pattern: it emits the condition, reserves
+a <code>CJMP</code> slot, emits the <code>otherwise</code> branch, reserves a <code>JMP</code> slot, then patches
+in both jump targets once it knows the sizes of each branch:</p>
 <html><head></head><body><div class="code-block" data-lang="cpp"><pre class="hl-code code language-cpp"><code><span class="hl-source hl-c++"><span class="hl-comment hl-line hl-double-slash hl-c"><span class="hl-punctuation hl-definition hl-comment hl-c">//</span> generator.cpp
 </span><span class="hl-storage hl-type hl-c">void</span> <span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-toc-list hl-full-identifier hl-c++">Generator<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span><span class="hl-entity hl-name hl-function hl-c++">emit_cond</span></span></span><span class="hl-meta hl-function hl-parameters hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span></span></span><span class="hl-meta hl-function hl-parameters hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-storage hl-modifier hl-c++">const</span> core<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span>Cond <span class="hl-keyword hl-operator hl-c">&amp;</span><span class="hl-variable hl-parameter hl-c++">cond</span><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span></span><span class="hl-meta hl-function hl-c++"> </span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-begin hl-c++">{</span></span></span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++">
   <span class="hl-meta hl-function-call hl-c++"><span class="hl-variable hl-function hl-c++">emit_expr</span><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span></span></span><span class="hl-meta hl-function-call hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-keyword hl-operator hl-c">*</span>cond<span class="hl-punctuation hl-accessor hl-dot hl-c++">.</span><span class="hl-variable hl-other hl-readwrite hl-member hl-c++">condition</span></span></span><span class="hl-meta hl-function-call hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span></span><span class="hl-punctuation hl-terminator hl-c++">;</span>
@@ -331,8 +336,8 @@ both jump targets once it knows the sizes of each branch:</p>
 <p><code>CJMP</code> jumps if the top of the stack is 1, so the <code>otherwise</code> branch sits
 immediately after it.</p>
 <h2 id="lambdas-and-closures">Lambdas and Closures</h2>
-<p>Lambdas are the most involved case, and follow the the VMs calling convention, which we explained
-in detail</p>
+<p>Lambdas are the most involved case, and follow the VMs calling convention, which
+we explained in detail in the previous part.</p>
 <html><head></head><body><div class="code-block" data-lang="cpp"><pre class="hl-code code language-cpp"><code><span class="hl-source hl-c++"><span class="hl-comment hl-line hl-double-slash hl-c"><span class="hl-punctuation hl-definition hl-comment hl-c">//</span> generator.cpp
 </span><span class="hl-storage hl-type hl-c">void</span> <span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-toc-list hl-full-identifier hl-c++">Generator<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span><span class="hl-entity hl-name hl-function hl-c++">emit_lambda</span></span></span><span class="hl-meta hl-function hl-parameters hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span></span></span><span class="hl-meta hl-function hl-parameters hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-storage hl-modifier hl-c++">const</span> core<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span>Lambda <span class="hl-keyword hl-operator hl-c">&amp;</span><span class="hl-variable hl-parameter hl-c++">lambda</span><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span></span><span class="hl-meta hl-function hl-c++"> </span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-begin hl-c++">{</span></span></span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++">
   <span class="hl-storage hl-type hl-c">auto</span> saved_locals <span class="hl-keyword hl-operator hl-assignment hl-c">=</span> <span class="hl-variable hl-language hl-this hl-c++">this</span><span class="hl-punctuation hl-accessor hl-arrow hl-c++">-&gt;</span><span class="hl-variable hl-other hl-readwrite hl-member hl-c++">local_symbols</span><span class="hl-punctuation hl-terminator hl-c++">;</span>
@@ -367,10 +372,10 @@ in detail</p>
 </span></span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-end hl-c++">}</span></span></span>
 </span></code></pre></div></body></html>
 <h2 id="function-application">Function Application</h2>
-<p>Built-in functions, arithmetic, comparisons, list operations are mapped
-directly to opcodes in a table keyed by <code>SymbolId</code>. When the callee resolves
-to one of them the generator emits the arguments then the opcode, with no
-<code>CALL</code>:</p>
+<p>Built-in functions, that is, arithmetic, comparisons, and list operations, are
+mapped directly to opcodes in a table keyed by <code>SymbolId</code>. When the callee
+resolves to one of them the generator emits the arguments then the opcode, with
+no <code>CALL</code>:</p>
 <html><head></head><body><div class="code-block" data-lang="cpp"><pre class="hl-code code language-cpp"><code><span class="hl-source hl-c++"><span class="hl-comment hl-line hl-double-slash hl-c"><span class="hl-punctuation hl-definition hl-comment hl-c">//</span> generator.cpp
 </span><span class="hl-storage hl-type hl-c">void</span> <span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-toc-list hl-full-identifier hl-c++">Generator<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span><span class="hl-entity hl-name hl-function hl-c++">emit_apply</span></span></span><span class="hl-meta hl-function hl-parameters hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span></span></span><span class="hl-meta hl-function hl-parameters hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-storage hl-modifier hl-c++">const</span> core<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span>Apply <span class="hl-keyword hl-operator hl-c">&amp;</span><span class="hl-variable hl-parameter hl-c++">application</span><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span></span><span class="hl-meta hl-function hl-c++"> </span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-begin hl-c++">{</span></span></span><span class="hl-meta hl-function hl-c++"><span class="hl-meta hl-block hl-c++">
   <span class="hl-keyword hl-control hl-c++">if</span> <span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span><span class="hl-storage hl-type hl-c">auto</span> <span class="hl-keyword hl-operator hl-c">*</span>var <span class="hl-keyword hl-operator hl-assignment hl-c">=</span> <span class="hl-meta hl-function-call hl-c++">std<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span><span class="hl-variable hl-function hl-c++">get_if</span><span class="hl-punctuation hl-definition hl-generic hl-begin hl-c++">&lt;</span>core<span class="hl-punctuation hl-accessor hl-double-colon hl-c++">::</span>Var<span class="hl-punctuation hl-definition hl-generic hl-end hl-c++">&gt;</span><span class="hl-meta hl-function-call hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-begin hl-c++">(</span></span></span></span><span class="hl-meta hl-function-call hl-c++"><span class="hl-meta hl-group hl-c++"><span class="hl-keyword hl-operator hl-c">&amp;</span>application<span class="hl-punctuation hl-accessor hl-dot hl-c++">.</span><span class="hl-variable hl-other hl-readwrite hl-member hl-c++">callee</span><span class="hl-punctuation hl-accessor hl-arrow hl-c++">-&gt;</span><span class="hl-variable hl-other hl-readwrite hl-member hl-c++">node</span></span><span class="hl-meta hl-group hl-c++"><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span></span><span class="hl-punctuation hl-section hl-group hl-end hl-c++">)</span></span> <span class="hl-meta hl-block hl-c++"><span class="hl-punctuation hl-section hl-block hl-begin hl-c++">{</span>
@@ -393,15 +398,24 @@ to one of them the generator emits the arguments then the opcode, with no
 <p>For a user-defined function the closure handle is pushed first, then each
 argument, then <code>CALL</code> with the argument count as its operand.</p>
 <h1 id="conclusion">Conclusion</h1>
-<p>At this point, we’re done. You might have noticed how, at least compared to part 2, parts 1, 1.5, and 3 are all pretty short.
-This structure, although ad hoc, does reflect the actual complexity in every part of the project. The compilation process itself is primarily a
-series of transformations on vaguely linguistic-ly shaped things. The actual target, the virtual machine we described and implemented at
-part 2, required a lot more tweaking. Each constituent part of the virtual machine is mostly straight forward to implement, its the selection of which
-parts, and clicking them together, which poses most of the complexity.There’s similar amount of ways to skin either cats, the compilation cat and virtual machine cat, but we only need to taxidermy the virtual machine cat.</p>
-<p>As a result of pretty arduosly debugging each part of the project, the output of the current program is already usable as visualization, but I think it might be
-neat to clean the plaintext output a little bit and present the project as a compiler-explorer like front end. Allowing users to input their own programs
-would probably require slightly nicer error reporting; which requires us to pass the position of each token along each step of the process, but also gives us nicer
-visualizations as a gimmie.</p>
+<p>At this point, we’re done. You might have noticed how, at least compared to part
+2, parts 1, 1.5, and 3 are all pretty short. This structure, although ad hoc,
+does reflect the actual complexity in every part of the project. The compilation
+process itself is primarily a series of transformations on vaguely linguistic-ly
+shaped things. The actual target, the virtual machine we described and
+implemented at part 2, required a lot more tweaking. Each constituent part of
+the virtual machine is mostly straight forward to implement, its the selection
+of which parts, and clicking them together, which poses most of the
+complexity.There’s similar amount of ways to skin either cats, the compilation
+cat and virtual machine cat, but we only need to taxidermy the virtual machine
+cat.</p>
+<p>As a result of pretty arduously debugging each part of the project, the output
+of the current program is already usable as visualization, but I think it might
+be neat to clean the plain text output a little bit and present the project as
+a compiler-explorer like front end. Allowing users to input their own programs
+would probably require slightly nicer error reporting; which requires us to pass
+the position of each token along each step of the process, but also gives us
+nicer visualizations as a gimmie.</p>
 <p>In any case, build a compiler, you’ll probably learn a thing or two.</p>
 </body></html>
       </article>
@@ -413,15 +427,49 @@ visualizations as a gimmie.</p>
     </main>
   </div>
   <script>
-    // Math is passed through as-is with $ / $$ delimiters.
+    // pulldown-cmark emits <span class="math math-inline"> and
+    // <span class="math math-display"> with raw LaTeX but no delimiters.
+    // Inject \(...\) / \[...\] before MathJax scans the document.
     window.MathJax = {
       loader: {load: ['[tex]/ams']},
       tex: {
         packages: {'[+]':['ams']},
-        inlineMath: [ ['$', '$'] ],
-        displayMath: [ ['$$', '$$'] ],
+        inlineMath: [ ['\\(', '\\)'] ],
+        displayMath: [ ['\\[', '\\]'] ],
       },
+      startup: {
+        ready() {
+          document.querySelectorAll('span.math.math-inline').forEach(el => {
+            el.textContent = '\\(' + el.textContent + '\\)';
+          });
+          document.querySelectorAll('span.math.math-display').forEach(el => {
+            el.textContent = '\\[' + el.textContent + '\\]';
+          });
+          MathJax.startup.defaultReady();
+        },
+        // justif measures a paragraph once and commits fixed line boxes, so it
+        // has to run AFTER MathJax swaps the raw LaTeX for typeset math. Boot
+        // it on DOMContentLoaded (the auto entry's default) and a line holding
+        // inline math gets measured against source text — "\delta" is six
+        // characters wide, the glyph that replaces it is one — leaving the
+        // line visibly gappy once MathJax lands.
+        pageReady() {
+          return MathJax.startup.defaultPageReady().then(bootJustif);
+        }
+      }
     };
+
+    let justifBooted = false;
+    function bootJustif() {
+      if (justifBooted) return;
+      justifBooted = true;
+      // The auto entry reads data-justif-selector off the marker tag in <head>
+      // and boots on import, since readyState is well past "loading" by now.
+      return import('https://cdn.jsdelivr.net/npm/justif@0.4.2/dist/auto.js');
+    }
+    // Fallback: if MathJax never loads, justify anyway rather than leaving the
+    // page on native CSS justification forever.
+    window.addEventListener('load', () => setTimeout(bootJustif, 3000));
   </script>
 <script id="MathJax-script" async
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">

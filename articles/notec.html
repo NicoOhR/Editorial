@@ -7,15 +7,13 @@
     text-align: justify;
   }
   </style>
-  <!-- Default selector is "p, li, dd, blockquote, figcaption"; the drop-cap
-       paragraph is excluded so its lines can wrap around the floated cap, and
-       .has-math blocks so justif doesn't line-break them around the raw `$…$`
-       text that MathJax later replaces with narrower typeset boxes. -->
+  <!-- Marker only: justif's auto entry reads this selector off whatever script
+       tag carries the attribute, and is imported later (see bootJustif at the
+       bottom of the page) so it measures typeset math rather than LaTeX source.
+       Default selector is "p, li, dd, blockquote, figcaption"; the drop-cap
+       paragraph is excluded so its lines can wrap around the floated cap. -->
   <script
-    type="module"
-    blocking="render"
-    data-justif-selector="p:not(.dropcap):not(.has-math), li:not(.has-math), dd:not(.has-math), blockquote:not(.has-math), figcaption:not(.has-math)"
-    src="https://cdn.jsdelivr.net/npm/justif@0.4.2/dist/auto.js"
+    data-justif-selector="p:not(.dropcap), li, dd, blockquote, figcaption"
   ></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -323,15 +321,49 @@ Phoenix, but I’ve yet to find the patience to annotate the existing code.</p>
     </main>
   </div>
   <script>
-    // Math is passed through as-is with $ / $$ delimiters.
+    // pulldown-cmark emits <span class="math math-inline"> and
+    // <span class="math math-display"> with raw LaTeX but no delimiters.
+    // Inject \(...\) / \[...\] before MathJax scans the document.
     window.MathJax = {
       loader: {load: ['[tex]/ams']},
       tex: {
         packages: {'[+]':['ams']},
-        inlineMath: [ ['$', '$'] ],
-        displayMath: [ ['$$', '$$'] ],
+        inlineMath: [ ['\\(', '\\)'] ],
+        displayMath: [ ['\\[', '\\]'] ],
       },
+      startup: {
+        ready() {
+          document.querySelectorAll('span.math.math-inline').forEach(el => {
+            el.textContent = '\\(' + el.textContent + '\\)';
+          });
+          document.querySelectorAll('span.math.math-display').forEach(el => {
+            el.textContent = '\\[' + el.textContent + '\\]';
+          });
+          MathJax.startup.defaultReady();
+        },
+        // justif measures a paragraph once and commits fixed line boxes, so it
+        // has to run AFTER MathJax swaps the raw LaTeX for typeset math. Boot
+        // it on DOMContentLoaded (the auto entry's default) and a line holding
+        // inline math gets measured against source text — "\delta" is six
+        // characters wide, the glyph that replaces it is one — leaving the
+        // line visibly gappy once MathJax lands.
+        pageReady() {
+          return MathJax.startup.defaultPageReady().then(bootJustif);
+        }
+      }
     };
+
+    let justifBooted = false;
+    function bootJustif() {
+      if (justifBooted) return;
+      justifBooted = true;
+      // The auto entry reads data-justif-selector off the marker tag in <head>
+      // and boots on import, since readyState is well past "loading" by now.
+      return import('https://cdn.jsdelivr.net/npm/justif@0.4.2/dist/auto.js');
+    }
+    // Fallback: if MathJax never loads, justify anyway rather than leaving the
+    // page on native CSS justification forever.
+    window.addEventListener('load', () => setTimeout(bootJustif, 3000));
   </script>
 <script id="MathJax-script" async
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
