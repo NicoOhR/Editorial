@@ -1,30 +1,27 @@
 Statisticians and probability theorists have historically salvaged and glued
-together from various mathematical disciplines to form their
-study. Measure spaces and $\sigma$-algebras borrowed from topology,
-characteristic functions were appropriated from Fourier analysis, entropy
-got nicked from thermodynamics; first by information theory then from
-there by statistics. The list goes on, and we haven't even mentioned
-geometry, linear algebra, or number theory, the latter two comprise
-a decent chunk of introductory statistics. There's maybe an interesting
-thesis-sized article tracking the genealogy of this frankly pieced
-together field. 
+together from various mathematical disciplines to form their study. Measure
+spaces and $\sigma$-algebras were borrowed from real analysis, characteristic
+functions were appropriated from Fourier analysis, entropy got nicked from
+thermodynamics; first by information theory then from there by statistics. The
+list goes on, and we haven't even mentioned geometry, linear algebra, number
+theory, or combinatorics, the latter three comprise a decent chunk of
+introductory statistics. There's maybe an interesting thesis-sized article
+tracking the genealogy of this pieced together field. 
 
 While the ability for the various disciplines of mathematics to accommodate
 one another so well is one of maths more beautiful features, and the
-statistician's eagerness to knead together several often unrelated
-ingredients to make the $\pi$ is often their virtue, it does make the
-subject incredibly hard to teach. There's a lot that is simply taken for
-granted, and the rigorous construction of the daily tools is skipped
-because of the amount of content that there is to cover. As a result,
-I find that, at least at the undergrad level, most statistics students
-struggle to intuitively explain a tool like the $t$-distribution. And
-that's statistics students; biologists, economists, and psychologist who
-need the tools but often lack the prerequisite mathematics knowledge will
-often treat statistics with learned helplessness. Of course
-anecdotal, don't worry, I don't go around interrogating people about their
-statistical intuition. The hope of this article is to provide some
-mathematical meaning to the procedure that is often stated and briefly
-glossed over.
+statistician's eagerness to knead together several often unrelated ingredients
+to make the $\pi$ is their virtue, it does make the subject incredibly hard to
+teach. There's a lot that is taken for granted, and the rigorous construction of
+the daily tools is skipped because of the sheer amount of content that there is
+to cover. As a result, I find that at least at the undergrad level, most
+statistics students struggle to intuitively explain a tool like the
+$t$-distribution. Biologists, economists, and psychologists, who need the tools
+but lack the prerequisite mathematical knowledge, will treat statistics with
+learned helplessness. This is all based on anecdote, of course, don't worry,
+I don't go around interrogating people about their statistical intuition. The
+hope of this article is to provide some mathematical meaning to the procedure
+that is only stated and briefly glossed over in class.
 
 # Constructing the Test Statistic
 
@@ -33,20 +30,20 @@ glossed over.
 Let's start with the problem statement, given a collection of data points
 (referred to as the sample), drawn from some unknown population, can we
 make any claims about the *characteristics* of the population, from the
-*statistics* of the sample? As it turns out, yeah (kinda). It's important
-to recognize here that each sample $x_i$ is a realization of a random
-variable $X$; our population is *not* random, however, it is exactly
-fixed. This is an important distinction to keep in mind. We use the
-framing of probability to give us the language to quantify what we don't
-know about our population.
+*statistics* of the sample? In some limited senses, the answer is yes. It's
+important to recognize here that each sample $x_i$ is a realization of a random
+variable $X$; our population is *not* random, however, it is exactly fixed. This
+is an important distinction to keep in mind, what is deterministic and what is
+a random varialbe. We use the framing of probability to give us the language to
+quantify what we don't know about our population.
 
 Let's pick out a characteristic of our population that we're interested in
 and figure out what our sample tells us about it. For example, what can we
 say about the mean of our population, denoted as $\mu$. What we want to do
-is take the information we got from the sample mean, denoted as $\bar x$,
-and use it to test a guess (read, hypothesis) for $\mu$, which we denote
-as $\mu_0$. Basically we want to ask, *how likely is it that
-a distribution that produced $\bar x$ would have the actual mean $\mu_0$
+is take the information we got from the sample mean, denoted as $\bar x$, and
+use it to test a guess for $\mu$, which we denote as $\mu_0$. Basically we want
+to ask, *how likely is it that a distribution that produced $\bar x$ would have
+the actual mean $\mu_0$?* 
 
 Since $x_i$ is a realization of a random variable $X_i$, and a random
 variable scaled by a constant as well as the summation of random variables
@@ -54,9 +51,9 @@ is also a random variable, $\bar x$ is the realization of a random
 variable as well, $$\bar X = \frac1n\sum X_i$$. To make life a bit easier,
 lets assume that we know the distribution of $X_i$ and by extension of
 $\bar X$. If in fact $\mu = \mu_0$ then we would expect that over the long
-run, as the number of data points in our sample increases, then the
-difference between $\bar X$ and $\mu_0$ decrease. Notionally, this
-sentiment is expressed as the expected value: $$E(\bar X - \mu_0) = 0$$ 
+run, as the number of data points in our sample increases, then the difference
+between $\bar X$ and $\mu_0$ would decrease. Notionally, this sentiment is
+expressed as the expected value: $$E(\bar X - \mu_0) = 0$$ 
 
 The step above is critical to our understanding of this subject, so we
 should pause here a little before continuing. What we said in the above is
@@ -86,10 +83,9 @@ $\bar X - \mu_0$ follows, than we can test if our *hypothesis* $\mu
 X - \mu_0$ we can evaluate exactly how probable it is that $\mu = \mu_0$.
 So... what is the distribution of $\bar X - \mu_0$?
 
-Well, if we dictate that our hypothesis is true, then we already know the
-mean, what about the variance? Because variance is shift-invariant, that
-is, adding or subtracting by a constant does not effect the variance of
-the random variable:
+Well, let us assume that our hypothesis is true, then we already know the mean,
+what about the variance? Because variance is shift-invariant, that is, adding or
+subtracting by a constant does not effect the variance of the random variable:
 
 $$ \operatorname{Var}(\bar X - \mu_0) = \operatorname{Var}(\bar X)  $$ 
 
@@ -102,14 +98,13 @@ $$
 \end{align*}
 $$
 
-In most cases where we apply the t-test, we like to assume that $X_i$'s
-are independent of each other, which means that $\operatorname{Cov}(X_i,
-X_j) = 0, \forall i \ne j$. This is often a very reasonable assumption,
-e.g. in a population of humans of the same age, heights can be safely
-assumed to be independent. But we shouldn't get too complacent, independent
-of samples is not always the case, the obvious example is time series
-data, where each new event is influenced by the last, but even the example
-of heights can be dubious, think of heights in a family, which is surely
+We like to assume that $X_i$'s are independent of each other, which means that
+$\operatorname{Cov}(X_i, X_j) = 0, \forall i \ne j$. This is often a very
+reasonable assumption, e.g. in a population of humans of the same age, heights
+can be safely assumed to be independent. But we shouldn't get too complacent,
+independence of samples is not always the case, the obvious example is time
+series data, where each new event is influenced by the last, but even the
+example of heights can be dubious, think of heights in a family, which is surely
 not independent.
 
 Anyway, we also assume that each $X_i$ is identical. A collection of
@@ -129,9 +124,14 @@ You probably know that we call $\operatorname{Var}(X) = \sigma^2$. So finally
 
 $$ \operatorname{Var}(\bar X - \mu_0) = \frac{\sigma^2}{n} $$
 
-(The division by $n$ has additional meaning beyond being a result of algebra, $n$ being the *degrees of freedom* of the data. This is a subject deserving it's own article, and if you would like more information I can recommend Sam Levy's still ongoing [series](https://www.youtube.com/watch?v=VDlnuO96p58) on the subject).
+(The division by $n$ has additional meaning beyond being a result of algebra,
+$n$ being the *degrees of freedom* of the data. This is a subject deserving it's
+own article, and if you would like more information I can recommend Sam Levy's
+still ongoing [series](https://www.youtube.com/watch?v=VDlnuO96p58) on the
+subject).
 
-We want our transformed distribution to be easy to work with, and dividing it by it's variance is a good way to do that, we'll go over what that gives us soon. 
+We want our transformed distribution to be easy to work with, and dividing it by
+it's variance is a good way to do that, we'll go over what that gives us soon. 
 
 $$ \begin{align*} \frac{n}{\sigma^2}\operatorname{Var}(\bar X - \mu_0) &=
 1 \\ \operatorname{Var}\left(\left (\sqrt{\frac{n}{\sigma^2}} \right)\bar
@@ -174,12 +174,12 @@ $$ s^2 = \frac{1}{n-1}\sum (X_i - \bar X)^2$$
 
 Again, we should recognize that $s^2$ is a random variable, which somewhat
 complicates our transformed distribution. But have no fear, $s^2$ luckily
-has a predictable distribution (after a little bit of fanengaling), we get
-the $\chi^2_{n}$ distribution (pronounced cai-squared with $n$ degrees of freedom). The $\chi^2$
-distribution arises as a sum of $n$ squared $N(0,1)$. The mean
-of $(X_i - \bar X)^2$ is $0$ under our assumption that $\mu = \mu_0$, then
-we scale it again by dividing by $\sigma^2$, finally we move the $n -1$ to
-the other side so: 
+has a predictable distribution (after a little bit of fanengaling), we get the
+$\chi^2_{n}$ distribution (pronounced cai-squared with $n$ degrees of freedom).
+The $\chi^2$ distribution arises as a sum of $n$ squared $N(0,1)$. The mean of
+$(X_i - \bar X)^2$ is $0$ under our assumption that $\mu = \mu_0$, then we scale
+it again by dividing by $\sigma^2$, finally we move the $n -1$ to the other side
+so: 
 
 $$ \frac{(n-1)s^2}{\sigma^2} = \frac{1}{\sigma^2}\sum_{i=1}^n (X_i - \bar X)^2
 \sim \chi^2_{n-1}$$

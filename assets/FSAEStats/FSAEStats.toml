@@ -4,3 +4,4 @@ author = "Nico OR"
 content_path = "assets/FSAEStats/FSAEStats.md"
 link = "articles/FSAEStats.html"
 date = "2025-05-08"
+hidden = true
